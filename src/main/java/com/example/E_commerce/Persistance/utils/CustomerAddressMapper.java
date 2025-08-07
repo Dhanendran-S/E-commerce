@@ -16,6 +16,7 @@ public class CustomerAddressMapper {
         address.setCountry(dto.getCountry());
         address.setPincode(dto.getPincode());
         return address;
+
     }
 
     public static CustomerAddressResponseDTO toResponseDTO(CustomerAddress entity) {
