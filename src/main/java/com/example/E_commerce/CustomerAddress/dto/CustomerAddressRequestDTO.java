@@ -1,0 +1,14 @@
+package com.example.E_commerce.CustomerAddress.dto;
+
+import lombok.Data;
+
+@Data
+public class CustomerAddressRequestDTO {
+    private Long customerId;
+    private String streetName;
+    private String district;
+    private String state;
+    private String country;
+    private String pincode;
+    private String customerName;
+}
