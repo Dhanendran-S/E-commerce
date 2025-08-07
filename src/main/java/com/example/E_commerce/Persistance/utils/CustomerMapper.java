@@ -41,6 +41,7 @@ public class CustomerMapper {
         dto.setPhoneNumber(customer.getPhoneNumber());
         dto.setUsername(customer.getUsername());
         if (customer.getAddresses() != null) {
+
             List<CustomerAddressResponseDTO> addressEntities = customer.getAddresses();
             List<CustomerAddressResponseDTO> addressDTOs = addressEntities
                     .stream()
