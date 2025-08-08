@@ -4,9 +4,7 @@ import com.example.E_commerce.Customer.dto.CustomerRequestDTO;
 import com.example.E_commerce.Customer.dto.CustomerResponseDTO;
 import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import com.example.E_commerce.Persistance.model.CustomerAddress;
-import com.example.E_commerce.Persistance.utils.CustomerAddressMapper;
 import com.example.E_commerce.Persistance.model.Customer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

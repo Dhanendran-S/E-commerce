@@ -26,7 +26,7 @@ public class Product {
     private BigDecimal price;
     private Integer stockQty;
 
-    @ManyToMany(mappedBy = "productList")
+    @ManyToMany(mappedBy = "products")
     private List<Order> orders = new ArrayList<>();
 }
 

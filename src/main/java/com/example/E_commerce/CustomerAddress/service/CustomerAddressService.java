@@ -7,10 +7,8 @@ import com.example.E_commerce.Persistance.model.CustomerAddress;
 import com.example.E_commerce.Persistance.repository.CustomerAddressRepository;
 import com.example.E_commerce.Persistance.repository.CustomerRepository;
 import com.example.E_commerce.Persistance.utils.CustomerAddressMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service

@@ -20,9 +20,9 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
-    private int orderQuantity;
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
+    private int orderQuantity;
     private String status;
 
     @ManyToOne
@@ -35,7 +35,7 @@ public class Order {
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
-    private List<Product> productList = new ArrayList<>();
+    private List<Product> products = new ArrayList<>();
 }
 
 

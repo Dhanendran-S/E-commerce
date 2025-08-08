@@ -2,7 +2,6 @@ package com.example.E_commerce.Product.controller;
 
 
 import com.example.E_commerce.Customer.dto.ResponseMessage;
-import com.example.E_commerce.Persistance.model.Product;
 import com.example.E_commerce.Persistance.utils.ProductMapper;
 import com.example.E_commerce.Product.assembler.ProductAssembler;
 import com.example.E_commerce.Product.dto.ProductRequestDTO;
@@ -10,7 +9,6 @@ import com.example.E_commerce.Product.dto.ProductResponseDTO;
 import com.example.E_commerce.Product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;

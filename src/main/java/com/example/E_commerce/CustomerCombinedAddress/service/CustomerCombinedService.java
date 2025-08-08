@@ -1,6 +1,5 @@
 package com.example.E_commerce.CustomerCombinedAddress.service;
 
-import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import com.example.E_commerce.CustomerCombinedAddress.dto.CustomerCombinedResponseDTO;
 import com.example.E_commerce.Persistance.model.Customer;
 import com.example.E_commerce.Persistance.repository.CustomerAddressRepository;
