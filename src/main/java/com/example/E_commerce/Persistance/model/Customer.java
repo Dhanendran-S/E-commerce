@@ -29,7 +29,7 @@ public class Customer {
     private String password;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-    private List<CustomerAddressResponseDTO> addresses;
+    private List<CustomerAddress> addresses;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Order> orders = new ArrayList<>();

@@ -3,6 +3,7 @@ package com.example.E_commerce.Persistance.utils;
 import com.example.E_commerce.Customer.dto.CustomerRequestDTO;
 import com.example.E_commerce.Customer.dto.CustomerResponseDTO;
 import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
+import com.example.E_commerce.Persistance.model.CustomerAddress;
 import com.example.E_commerce.Persistance.utils.CustomerAddressMapper;
 import com.example.E_commerce.Persistance.model.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +12,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import java.util.stream.Collectors;
-
 @Component
 public class CustomerMapper {
 
-    @Autowired
     private final CustomerAddressMapper customerAddressMapper;
 
     public CustomerMapper(CustomerAddressMapper customerAddressMapper) {
@@ -40,12 +38,12 @@ public class CustomerMapper {
         dto.setCEmail(customer.getCEmail());
         dto.setPhoneNumber(customer.getPhoneNumber());
         dto.setUsername(customer.getUsername());
-        if (customer.getAddresses() != null) {
 
-            List<CustomerAddressResponseDTO> addressEntities = customer.getAddresses();
+        if (customer.getAddresses() != null) {
+            List<CustomerAddress> addressEntities = customer.getAddresses();
             List<CustomerAddressResponseDTO> addressDTOs = addressEntities
                     .stream()
-                    .map(customerAddressMapper::toResponseDTO)
+                    .map(address -> CustomerAddressMapper.toResponseDTO(address))
                     .collect(Collectors.toList());
             dto.setAddresses(addressDTOs);
         }

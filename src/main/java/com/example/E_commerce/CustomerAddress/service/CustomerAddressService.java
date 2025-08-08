@@ -5,6 +5,7 @@ import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import com.example.E_commerce.Persistance.model.Customer;
 import com.example.E_commerce.Persistance.model.CustomerAddress;
 import com.example.E_commerce.Persistance.repository.CustomerAddressRepository;
+import com.example.E_commerce.Persistance.repository.CustomerRepository;
 import com.example.E_commerce.Persistance.utils.CustomerAddressMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,13 @@ public class CustomerAddressService {
 
     private final CustomerAddressMapper mapper;
 
-    @Autowired
-    public CustomerAddressService(CustomerAddressRepository repository, CustomerAddressMapper mapper) {
+    private final CustomerRepository customerRepository;
+
+
+    public CustomerAddressService(CustomerAddressRepository repository, CustomerAddressMapper mapper, CustomerRepository customerRepository) {
         this.repository = repository;
         this.mapper = mapper;
+        this.customerRepository = customerRepository;
     }
 
     /*public List<CustomerAddressResponseDTO> getAllCustomerAddresses() {
@@ -38,9 +42,12 @@ public class CustomerAddressService {
     }
 
     public CustomerAddressResponseDTO addAddress(CustomerAddressRequestDTO dto) {
-        CustomerAddress entity = CustomerAddressMapper.toEntity(dto);
-        CustomerAddress saved = repository.save(entity);
-        return CustomerAddressMapper.toResponseDTO(saved);
+        Customer customer = customerRepository.findById(dto.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        CustomerAddress address = CustomerAddressMapper.toEntity(dto);
+        address.setCustomer(customer);
+        CustomerAddress savedAddress = repository.save(address);
+        return CustomerAddressMapper.toResponseDTO(savedAddress);
     }
 
     public CustomerAddressResponseDTO updateAddress(Long customerId, CustomerAddressRequestDTO dto) {
