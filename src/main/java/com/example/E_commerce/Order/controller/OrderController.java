@@ -14,9 +14,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-
     private final OrderAssembler orderAssembler;
-
 
     public OrderController(OrderService orderService, OrderAssembler orderAssembler) {
         this.orderService = orderService;

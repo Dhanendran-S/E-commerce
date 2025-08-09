@@ -10,23 +10,22 @@ import org.springframework.stereotype.Component;
 public class CustomerAddressMapper {
 
     public static CustomerAddress toEntity(CustomerAddressRequestDTO dto) {
-        CustomerAddress address = new CustomerAddress();
-        address.setStreetName(dto.getStreetName());
-        address.setDistrict(dto.getDistrict());
-        address.setState(dto.getState());
-        address.setCountry(dto.getCountry());
-        address.setPincode(dto.getPincode());
-        return address;
+        return CustomerAddress.builder()
+                .streetName(dto.getStreetName())
+                .district(dto.getDistrict())
+                .state(dto.getState())
+                .country(dto.getCountry())
+                .pincode(dto.getPincode())
+                .build();
     }
 
     public static CustomerAddressResponseDTO toResponseDTO(CustomerAddress entity) {
-        CustomerAddressResponseDTO dto = new CustomerAddressResponseDTO();
-        dto.setStreetName(entity.getStreetName());
-        dto.setDistrict(entity.getDistrict());
-        dto.setState(entity.getState());
-        dto.setCountry(entity.getCountry());
-        dto.setPincode(entity.getPincode());
-        return dto;
+        return CustomerAddressResponseDTO.builder()
+                .streetName(entity.getStreetName())
+                .district(entity.getDistrict())
+                .state(entity.getState())
+                .country(entity.getCountry())
+                .pincode(entity.getPincode())
+                .build();
     }
-
 }

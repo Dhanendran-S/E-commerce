@@ -20,17 +20,31 @@ public class CustomerMapper {
     }
 
     public static Customer toEntity(CustomerRequestDTO dto) {
-        Customer customer = new Customer();
+        /*Customer customer = new Customer();
         customer.setCName(dto.getCName());
         customer.setCEmail(dto.getCEmail());
         customer.setPhoneNumber(dto.getPhoneNumber());
         customer.setUsername(dto.getUsername());
         customer.setPassword(dto.getPassword());
         return customer;
+
+        Customer customer = Customer.builder()
+                                    .(1)
+                                    .("John")
+                                    .build();
+        */
+
+        return Customer.builder()
+                .cName((dto.getCName()))
+                .cEmail(dto.getCEmail())
+                .phoneNumber(dto.getPhoneNumber())
+                .username(dto.getUsername())
+                .password(dto.getPassword())
+                .build();
     }
 
     public static CustomerResponseDTO toResponseDTO(Customer customer) {
-        CustomerResponseDTO dto = new CustomerResponseDTO();
+        /*CustomerResponseDTO dto = new CustomerResponseDTO();
         dto.setCId(customer.getCId());
         dto.setCName(customer.getCName());
         dto.setCEmail(customer.getCEmail());
@@ -45,6 +59,20 @@ public class CustomerMapper {
                     .collect(Collectors.toList());
             dto.setAddresses(addressDTOs);
         }
-        return dto;
+        return dto;*/
+        return CustomerResponseDTO.builder()
+                .cId(customer.getCId())
+                .cName(customer.getCName())
+                .cEmail(customer.getCEmail())
+                .PhoneNumber(customer.getPhoneNumber())
+                .username(customer.getUsername())
+                .addresses(
+                        customer.getAddresses() != null
+                                ? customer.getAddresses().stream()
+                                                            .map(CustomerAddressMapper::toResponseDTO)
+                                                            .toList()
+                                : null
+                )
+                .build();
     }
 }

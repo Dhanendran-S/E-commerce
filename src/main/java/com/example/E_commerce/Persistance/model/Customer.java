@@ -3,6 +3,7 @@ package com.example.E_commerce.Persistance.model;
 import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class Customer {
 
     @Id

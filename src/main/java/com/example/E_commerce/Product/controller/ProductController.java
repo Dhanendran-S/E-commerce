@@ -1,34 +1,34 @@
 package com.example.E_commerce.Product.controller;
 
 
-import com.example.E_commerce.Customer.dto.ResponseMessage;
 import com.example.E_commerce.Persistance.utils.ProductMapper;
 import com.example.E_commerce.Product.assembler.ProductAssembler;
 import com.example.E_commerce.Product.dto.ProductRequestDTO;
 import com.example.E_commerce.Product.dto.ProductResponseDTO;
 import com.example.E_commerce.Product.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.E_commerce.Constants.CommonConstants.P_DELETED;
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+    private final ProductAssembler productAssembler;
+    private final ProductMapper productMapper;
+    private final PagedResourcesAssembler pagedResourcesAssembler;
 
-    @Autowired
-    private ProductAssembler productAssembler;
-
-    @Autowired
-    private ProductMapper productMapper;
-
-    @Autowired
-    private PagedResourcesAssembler pagedResourcesAssembler;
+    public ProductController(ProductService productService, ProductAssembler productAssembler, ProductMapper productMapper, PagedResourcesAssembler pagedResourcesAssembler) {
+        this.productAssembler = productAssembler;
+        this.productMapper = productMapper;
+        this.productService = productService;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
+    }
 
     @GetMapping("/all")
     public PagedModel<EntityModel<ProductResponseDTO>> getAllProducts(
@@ -60,9 +60,8 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public EntityModel<ResponseMessage> deleteProduct(@PathVariable Long id) {
+    public EntityModel<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        ResponseMessage responseMessage = new ResponseMessage("Product deleted successfully");
-        return EntityModel.of(responseMessage);
+        return EntityModel.of(P_DELETED);
     }
 }

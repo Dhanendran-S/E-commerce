@@ -1,13 +1,16 @@
 package com.example.E_commerce.Customer.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerRequestDTO {
+
     private String cName;
     private String cEmail;
     private String phoneNumber;

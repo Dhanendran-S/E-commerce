@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/customer-combined")
 public class CustomerCombinedController {
 
-    @Autowired
-    private CustomerCombinedService service;
+    private final CustomerCombinedService service;
+
+    public CustomerCombinedController(CustomerCombinedService service) {
+        this.service = service;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<CustomerCombinedResponseDTO> getCustomerWithAddress(@PathVariable Long id) {

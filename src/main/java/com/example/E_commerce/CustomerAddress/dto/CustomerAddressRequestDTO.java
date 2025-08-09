@@ -1,7 +1,9 @@
 package com.example.E_commerce.CustomerAddress.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class CustomerAddressRequestDTO {
     private Long customerId;

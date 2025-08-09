@@ -12,16 +12,17 @@ import java.util.stream.Collectors;
 public class CustomerCombinedMapper {
 
     public static CustomerCombinedResponseDTO toResponseDTO(Customer customer) {
-        List<CustomerAddressResponseDTO> addressDTOs = customer.getAddresses().stream()
+        List<CustomerAddressResponseDTO> addressDTOs = customer.getAddresses()
+                .stream()
                 .map(CustomerAddressMapper::toResponseDTO)
                 .collect(Collectors.toList());
 
-        return new CustomerCombinedResponseDTO(
-                customer.getCId(),
-                customer.getCName(),
-                customer.getPhoneNumber(),
-                customer.getCEmail(),
-                addressDTOs
-        );
+        return CustomerCombinedResponseDTO.builder()
+                .id(customer.getCId())
+                .name(customer.getCName())
+                .phone(customer.getPhoneNumber())
+                .email(customer.getCEmail())
+                .addresses(addressDTOs)
+                .build();
     }
 }

@@ -10,21 +10,21 @@ import org.springframework.stereotype.Component;
 public class ProductMapper {
 
     public static Product toEntity(ProductRequestDTO dto) {
-        Product product = new Product();
-        product.setName(dto.getName());
-        product.setDescription(dto.getDescription());
-        product.setPrice(dto.getPrice());
-        product.setStockQty(dto.getQuantity());
-        return product;
+        return Product.builder()
+                .name(dto.getName())
+                .description((dto.getDescription()))
+                .price(dto.getPrice())
+                .stockQty(dto.getQuantity())
+                .build();
     }
 
     public static ProductResponseDTO toResponseDTO(Product product) {
-        ProductResponseDTO dto = new ProductResponseDTO();
-        dto.setId(product.getPId());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
-        dto.setQuantity(product.getStockQty());
-        return dto;
+        return ProductResponseDTO.builder()
+                .id(product.getPId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .quantity(product.getStockQty())
+                .build();
     }
 }

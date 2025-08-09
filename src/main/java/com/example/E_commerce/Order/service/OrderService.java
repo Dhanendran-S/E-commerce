@@ -1,12 +1,15 @@
 package com.example.E_commerce.Order.service;
 
+import com.example.E_commerce.Exception.CustomerNotFoundException;
+import com.example.E_commerce.Exception.OrderNotFoundException;
+import com.example.E_commerce.Exception.ProductNotFoundException;
 import com.example.E_commerce.Order.assembler.OrderAssembler;
 import com.example.E_commerce.Order.dto.OrderRequestDTO;
 import com.example.E_commerce.Order.dto.OrderResponseDTO;
-import com.example.E_commerce.Persistance.model.Customer;
-import com.example.E_commerce.Persistance.model.Order;
-import com.example.E_commerce.Persistance.model.Product;
+import com.example.E_commerce.Order.dto.ProductQuantityDTO;
+import com.example.E_commerce.Persistance.model.*;
 import com.example.E_commerce.Persistance.repository.CustomerRepository;
+import com.example.E_commerce.Persistance.repository.OrderProductRepository;
 import com.example.E_commerce.Persistance.repository.OrderRepository;
 import com.example.E_commerce.Persistance.repository.ProductRepository;
 import com.example.E_commerce.Persistance.utils.OrderMapper;
@@ -15,42 +18,43 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.example.E_commerce.Constants.CommonConstants.*;
+
 
 @Service
 public class OrderService {
 
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
+    private final OrderMapper orderMapper;
+    private final OrderAssembler orderAssembler;
+    private final OrderProductRepository  orderProductRepository;
 
-    private ProductRepository productRepository;
-
-    private CustomerRepository customerRepository;
-
-    private OrderMapper orderMapper;
-
-    private OrderAssembler orderAssembler;
-
-    public OrderService(OrderRepository orderRepository, OrderMapper orderMapper, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, OrderMapper orderMapper, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
         this.orderAssembler = orderAssembler;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
+        this.orderProductRepository = orderProductRepository;
     }
+
     public OrderResponseDTO createOrder(OrderRequestDTO dto) {
 
         //To check that customer id is not present or not
         Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
 
         //
         List<Product> products = dto.getProducts()
                 .stream()
                 .map(pq -> {
                     Product product = productRepository.findById(pq.getProductId())
-                            .orElseThrow(() -> new RuntimeException("Product not found: " + pq.getProductId()));
+                            .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
 
                     if(product.getStockQty() < pq.getQuantity()) {
-                        throw new RuntimeException("Product stock qty less than ordered qty");
+                        throw new ProductNotFoundException(P_QUANTITY);
                     }
                     product.setStockQty(product.getStockQty() - pq.getQuantity());
                     return product;
@@ -64,20 +68,48 @@ public class OrderService {
                 .stream() //Mainly works with collections
                 .map(pq -> { // It takes each product one by one
                     Product product = productRepository.findById(pq.getProductId())
-                            .orElseThrow(() -> new RuntimeException("Product not found: " + pq.getProductId()));
+                            .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
                     return product.getPrice().multiply(BigDecimal.valueOf(pq.getQuantity()));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add); //Like total += price inside for loop
 
-        Order order = OrderMapper.toEntity(dto, customer, products, totalPrice);
+        Order order = OrderMapper.toEntity(dto, customer, totalPrice);
         Order orderSaved = orderRepository.save(order);
+
+        List<OrderProduct> orderProducts = dto.getProducts().stream()
+                .map(pq -> {
+                    Product product = products.stream()
+                            .filter(p -> p.getPId().equals(pq.getProductId()))
+                            .findFirst()
+                            .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
+
+                    OrderProductKey key = new OrderProductKey(orderSaved.getOrderId(), product.getPId());
+
+                    return OrderProduct.builder()
+                            .id(key)
+                            .order(orderSaved)
+                            .product(product)
+                            .quantity(pq.getQuantity())
+                            .build();
+                })
+                .toList();
+
+        orderProductRepository.saveAll(orderProducts);
+        orderSaved.setOrderProducts(orderProducts);
         return orderMapper.toResponseDTO(orderSaved, dto.getProducts());
+
     }
 
     public OrderResponseDTO getOrderById(Long id) {
-        Order order =  orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found: " + id));
-        return orderMapper.toResponseDTO(order, null);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(O_NOTFOUND));
+
+        List<ProductQuantityDTO> orderedProducts = productRepository.findById(id)
+                .stream()
+                .map(p -> new ProductQuantityDTO(p.getPId(), p.getStockQty())) //p.getProductId(), p.getQuantity()
+                .toList();
+
+        return orderMapper.toResponseDTO(order, orderedProducts);
     }
 
     public List<OrderResponseDTO> getAllOrders() {

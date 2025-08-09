@@ -1,8 +1,10 @@
 package com.example.E_commerce.CustomerAddress.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class CustomerAddressResponseDTO {
     @JsonIgnore

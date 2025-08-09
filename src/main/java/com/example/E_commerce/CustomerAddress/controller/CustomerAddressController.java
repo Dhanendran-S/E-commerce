@@ -5,6 +5,7 @@ import com.example.E_commerce.CustomerAddress.dto.CustomerAddressRequestDTO;
 import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import com.example.E_commerce.CustomerAddress.service.CustomerAddressService;
 
+import com.example.E_commerce.Persistance.utils.CustomerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -19,11 +20,13 @@ import java.util.List;
 
 public class CustomerAddressController {
 
-    @Autowired
-    private CustomerAddressService customerAddressService;
+    private final CustomerAddressService customerAddressService;
+    private final CustomerAddressAssembler customerAddressAssembler;
 
-    @Autowired
-    private CustomerAddressAssembler customerAddressAssembler;
+    public CustomerAddressController(CustomerAddressService customerAddressService, CustomerAddressAssembler customerAddressAssembler) {
+        this.customerAddressService = customerAddressService;
+        this.customerAddressAssembler = customerAddressAssembler;
+    }
 
     /*@GetMapping("{/all")
     public ResponseEntity<CollectionModel<EntityModel<CustomerAddressResponseDTO>>> getAllCustomerAddress() {

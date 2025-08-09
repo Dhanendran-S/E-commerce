@@ -1,5 +1,6 @@
 package com.example.E_commerce.Product.service;
 
+import com.example.E_commerce.Exception.ProductNotFoundException;
 import com.example.E_commerce.Persistance.model.Product;
 import com.example.E_commerce.Persistance.repository.ProductRepository;
 import com.example.E_commerce.Persistance.utils.ProductMapper;
@@ -16,17 +17,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.example.E_commerce.Constants.CommonConstants.P_NOTFOUND;
+
 @Service
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
+    private final ProductAssembler productAssembler;
 
-    @Autowired
-    private ProductMapper productMapper;
-
-    @Autowired
-    private ProductAssembler productAssembler;
+    public ProductService(ProductRepository productRepository, ProductAssembler productAssembler, ProductMapper productMapper) {
+        this.productRepository = productRepository;
+        this.productAssembler = productAssembler;
+        this.productMapper = productMapper;
+    }
 
     public Page<ProductResponseDTO> getAllProducts(String filter, int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -48,15 +52,14 @@ public class ProductService {
                 .map(ProductMapper::toResponseDTO);
     }
 
-
     public ProductResponseDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
         return productMapper.toResponseDTO(product);
 
     }
 
-    public ProductResponseDTO addProduct(ProductRequestDTO dto) {
+    public ProductResponseDTO addProduct(ProductRequestDTO dto) { //Validation needs to be done here
         Product product = productMapper.toEntity(dto);
         Product added = productRepository.save(product);
         return productMapper.toResponseDTO(added);
@@ -73,11 +76,14 @@ public class ProductService {
             return productMapper.toResponseDTO(productRepository.save(product));
         }
         else {
-            throw new RuntimeException("Product with ID " + id + " not found");
+            throw new ProductNotFoundException(P_NOTFOUND);
         }
     }
 
     public void deleteProduct(Long id) {
+        if(!productRepository.existsById(id)) {
+            throw new ProductNotFoundException(P_NOTFOUND);
+        }
         productRepository.deleteById(id);
     }
 }
