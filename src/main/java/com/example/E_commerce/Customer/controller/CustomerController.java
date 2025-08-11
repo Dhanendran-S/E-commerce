@@ -65,6 +65,9 @@ public class CustomerController {
     public EntityModel<String> deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomer(id);
         return EntityModel.of(C_DELETED,
-                linkTo(methodOn(CustomerController.class).getAllCustomers(0, 10, "cId", "asc")).withRel("all-customers"));
+                linkTo(methodOn(CustomerController.class)
+                        .getAllCustomers(0, 10, "cId", "asc"))
+                        .withRel("all-customers")
+                        .withType("GET"));
     }
 }

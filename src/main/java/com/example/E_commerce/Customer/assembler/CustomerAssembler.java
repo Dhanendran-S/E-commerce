@@ -20,6 +20,7 @@ public class CustomerAssembler implements RepresentationModelAssembler<CustomerR
                 linkTo(methodOn(CustomerController.class)
                         .getAllCustomers(0, 10, "cId", "asc"))
                         .withRel("all-customers")
+                        .withType("GET")
         );
     }
 
