@@ -1,5 +1,6 @@
 package com.example.E_commerce.CustomerAddress.service;
 
+import com.example.E_commerce.CustomerAddress.assembler.CustomerAddressAssembler;
 import com.example.E_commerce.CustomerAddress.dto.CustomerAddressRequestDTO;
 import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import com.example.E_commerce.Exception.AddressNotFoundException;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.example.E_commerce.Constants.CommonConstants.C_ADDRESS_NOT_FOUND;
-import static com.example.E_commerce.Constants.CommonConstants.C_NOTFOUND;
+import static com.example.E_commerce.Constants.CommonConstants.*;
+import static io.micrometer.common.util.StringUtils.isBlank;
 
 @Service
 public class CustomerAddressService {
@@ -22,11 +23,13 @@ public class CustomerAddressService {
     private final CustomerAddressRepository repository;
     private final CustomerAddressMapper mapper;
     private final CustomerRepository customerRepository;
+    private final CustomerAddressAssembler assembler;
 
-    public CustomerAddressService(CustomerAddressRepository repository, CustomerAddressMapper mapper, CustomerRepository customerRepository) {
+    public CustomerAddressService(CustomerAddressRepository repository, CustomerAddressMapper mapper, CustomerRepository customerRepository, CustomerAddressAssembler assembler) {
         this.repository = repository;
         this.mapper = mapper;
         this.customerRepository = customerRepository;
+        this.assembler = assembler;
     }
 
     /*public List<CustomerAddressResponseDTO> getAllCustomerAddresses() {
@@ -39,16 +42,23 @@ public class CustomerAddressService {
     public CustomerAddressResponseDTO getCustomerAddressById(Long id) {
         CustomerAddress entity = repository.findById(id)
                 .orElseThrow(() -> new AddressNotFoundException(C_ADDRESS_NOT_FOUND));
-        return mapper.toResponseDTO(entity);
+        return assembler.toResponseDTO(entity);
     }
 
-    public CustomerAddressResponseDTO addAddress(CustomerAddressRequestDTO dto) { //Validation needs to be done here
+    public CustomerAddressResponseDTO addAddress(CustomerAddressRequestDTO dto) {
+        if (dto.getCustomerId() == null || dto.getCustomerId() <= 0) {
+            throw new CustomerNotFoundException(INVALID_CID);
+        }
+        if (isBlank(dto.getStreetName()) || isBlank(dto.getDistrict())
+                || isBlank(dto.getPincode()) || isBlank(dto.getCountry())) {
+            throw new AddressNotFoundException(C_ADDRESS_EMPTY);
+        }
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
-        CustomerAddress address = CustomerAddressMapper.toEntity(dto);
+        CustomerAddress address = mapper.toEntity(dto);
         address.setCustomer(customer);
         CustomerAddress savedAddress = repository.save(address);
-        return CustomerAddressMapper.toResponseDTO(savedAddress);
+        return assembler.toResponseDTO(savedAddress);
     }
 
     public CustomerAddressResponseDTO updateAddress(Long customerId, CustomerAddressRequestDTO dto) {
@@ -64,7 +74,7 @@ public class CustomerAddressService {
         address.setCountry(dto.getCountry());
         address.setPincode(dto.getPincode());
         CustomerAddress updatedAddress = repository.save(address);
-        return mapper.toResponseDTO(updatedAddress);
+        return assembler.toResponseDTO(updatedAddress);
     }
 
     /*public void deleteAddressById(Long id) {

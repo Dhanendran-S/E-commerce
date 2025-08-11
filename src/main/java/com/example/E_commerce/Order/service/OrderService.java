@@ -27,13 +27,11 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
-    private final OrderMapper orderMapper;
     private final OrderAssembler orderAssembler;
     private final OrderProductRepository  orderProductRepository;
 
-    public OrderService(OrderRepository orderRepository, OrderMapper orderMapper, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository) {
+    public OrderService(OrderRepository orderRepository, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository) {
         this.orderRepository = orderRepository;
-        this.orderMapper = orderMapper;
         this.orderAssembler = orderAssembler;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
@@ -41,42 +39,25 @@ public class OrderService {
     }
 
     public OrderResponseDTO createOrder(OrderRequestDTO dto) {
+        if (dto.getCustomerId() == null) {
+            throw new CustomerNotFoundException(INVALID_CID);
+        }
+        if (dto.getProducts() == null || dto.getProducts().isEmpty()) {
+            throw new OrderNotFoundException(O_NOTFOUND);
+        }
 
         //To check that customer id is not present or not
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
-
-        //
-        List<Product> products = dto.getProducts()
-                .stream()
-                .map(pq -> {
-                    Product product = productRepository.findById(pq.getProductId())
-                            .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
-
-                    if(product.getStockQty() < pq.getQuantity()) {
-                        throw new ProductNotFoundException(P_QUANTITY);
-                    }
-                    product.setStockQty(product.getStockQty() - pq.getQuantity());
-                    return product;
-                }).toList();
-
+        Customer customer = getCustomerOrThrow(dto.getCustomerId());
+        List<Product> products = validateAndUpdateStock(dto.getProducts());
         //Save the products with updated stock qty in the product table
         products.forEach(productRepository::save);
-
         //Calculate the price for it
-        BigDecimal totalPrice = dto.getProducts()
-                .stream() //Mainly works with collections
-                .map(pq -> { // It takes each product one by one
-                    Product product = productRepository.findById(pq.getProductId())
-                            .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
-                    return product.getPrice().multiply(BigDecimal.valueOf(pq.getQuantity()));
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add); //Like total += price inside for loop
-
+        BigDecimal totalPrice = calculateTotalPrice(dto.getProducts());
         Order order = OrderMapper.toEntity(dto, customer, totalPrice);
         Order orderSaved = orderRepository.save(order);
 
-        List<OrderProduct> orderProducts = dto.getProducts().stream()
+        List<OrderProduct> orderProducts = dto.getProducts()
+                .stream()
                 .map(pq -> {
                     Product product = products.stream()
                             .filter(p -> p.getPId().equals(pq.getProductId()))
@@ -96,8 +77,7 @@ public class OrderService {
 
         orderProductRepository.saveAll(orderProducts);
         orderSaved.setOrderProducts(orderProducts);
-        return orderMapper.toResponseDTO(orderSaved, dto.getProducts());
-
+        return orderAssembler.toResponseDTO(orderSaved, dto.getProducts());
     }
 
     public OrderResponseDTO getOrderById(Long id) {
@@ -109,15 +89,46 @@ public class OrderService {
                 .map(p -> new ProductQuantityDTO(p.getPId(), p.getStockQty())) //p.getProductId(), p.getQuantity()
                 .toList();
 
-        return orderMapper.toResponseDTO(order, orderedProducts);
+        return orderAssembler.toResponseDTO(order, orderedProducts);
     }
 
     public List<OrderResponseDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         return orders
                 .stream()
-                .map(order -> orderMapper.toResponseDTO(order, null))
+                .map(order -> orderAssembler.toResponseDTO(order, null))
                 .toList();
     }
+
+    private Customer getCustomerOrThrow(Long customerId) {
+        return customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
+    }
+
+    private List<Product> validateAndUpdateStock(List<ProductQuantityDTO> productQuantities) {
+        return productQuantities.stream()
+                .map(pq -> {
+                    Product product = productRepository.findById(pq.getProductId())
+                            .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
+
+                    if (product.getStockQty() < pq.getQuantity()) {
+                        throw new ProductNotFoundException(P_QUANTITY);
+                    }
+                    product.setStockQty(product.getStockQty() - pq.getQuantity());
+                    return productRepository.save(product);
+                })
+                .toList();
+    }
+
+    private BigDecimal calculateTotalPrice(List<ProductQuantityDTO> dto) {
+        return dto.stream() //Mainly works with collections
+                .map(pq -> { // It takes each product one by one
+                    Product product = productRepository.findById(pq.getProductId())
+                            .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
+                    return product.getPrice().multiply(BigDecimal.valueOf(pq.getQuantity()));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add); //Like total += price inside for loop
+    }
 }
+
 

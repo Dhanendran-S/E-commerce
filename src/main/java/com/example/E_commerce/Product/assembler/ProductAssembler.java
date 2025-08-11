@@ -23,4 +23,14 @@ public class ProductAssembler implements RepresentationModelAssembler<ProductRes
                         .withRel("all-products")
         );
     }
+
+    public static ProductResponseDTO toResponseDTO(Product product) {
+        return ProductResponseDTO.builder()
+                .id(product.getPId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .quantity(product.getStockQty())
+                .build();
+    }
 }

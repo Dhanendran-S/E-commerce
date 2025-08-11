@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static com.example.E_commerce.Constants.CommonConstants.P_NOTFOUND;
+import static com.example.E_commerce.Constants.CommonConstants.P_SAME;
 
 @Service
 public class ProductService {
@@ -55,14 +56,17 @@ public class ProductService {
     public ProductResponseDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(P_NOTFOUND));
-        return productMapper.toResponseDTO(product);
+        return productAssembler.toResponseDTO(product);
 
     }
 
-    public ProductResponseDTO addProduct(ProductRequestDTO dto) { //Validation needs to be done here
+    public ProductResponseDTO addProduct(ProductRequestDTO dto) {
+        if (productRepository.existsByName(dto.getName())) {
+            throw new ProductNotFoundException(P_SAME);
+        }
         Product product = productMapper.toEntity(dto);
         Product added = productRepository.save(product);
-        return productMapper.toResponseDTO(added);
+        return productAssembler.toResponseDTO(added);
     }
 
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO dto) {
@@ -73,7 +77,7 @@ public class ProductService {
             product.setDescription(dto.getDescription());
             product.setPrice(dto.getPrice());
             product.setStockQty(dto.getQuantity());
-            return productMapper.toResponseDTO(productRepository.save(product));
+            return productAssembler.toResponseDTO(productRepository.save(product));
         }
         else {
             throw new ProductNotFoundException(P_NOTFOUND);

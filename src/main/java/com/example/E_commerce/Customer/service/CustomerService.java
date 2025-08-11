@@ -4,6 +4,7 @@ import com.example.E_commerce.Customer.assembler.CustomerAssembler;
 import com.example.E_commerce.Customer.dto.CustomerRequestDTO;
 import com.example.E_commerce.Customer.dto.CustomerResponseDTO;
 import com.example.E_commerce.Exception.CustomerNotFoundException;
+import com.example.E_commerce.Exception.ValidationException;
 import com.example.E_commerce.Persistance.utils.CustomerMapper;
 import com.example.E_commerce.Persistance.model.Customer;
 import com.example.E_commerce.Persistance.repository.CustomerRepository;
@@ -16,37 +17,53 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.example.E_commerce.Constants.CommonConstants.C_NOTFOUND;
+import static com.example.E_commerce.Constants.CommonConstants.*;
 
 @Service
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final CustomerMapper customerMapper;
     private final CustomerAssembler customerAssembler;
+    private final CustomerMapper customerMapper;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper, CustomerAssembler customerAssembler) {
+    public CustomerService(CustomerRepository customerRepository, CustomerAssembler customerAssembler,  CustomerMapper customerMapper) {
         this.customerRepository = customerRepository;
-        this.customerMapper = customerMapper;
         this.customerAssembler = customerAssembler;
+        this.customerMapper = customerMapper;
     }
 
     public Page<CustomerResponseDTO> getAllCustomers(int page, int size, String sortBy, String sortOrder) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return customerRepository.findAll(pageable).map(CustomerMapper::toResponseDTO);
+        return customerRepository.findAll(pageable)
+                .map(CustomerAssembler::toResponseDTO);
     }
 
     public CustomerResponseDTO getCustomerById(long id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
-        return customerMapper.toResponseDTO(customer);
+        return customerAssembler.toResponseDTO(customer);
     }
 
-    public CustomerResponseDTO saveCustomer(CustomerRequestDTO dto) { //Validation need to be done here
-        Customer customer = CustomerMapper.toEntity(dto);
+    public CustomerResponseDTO saveCustomer(CustomerRequestDTO dto) {
+        if (customerRepository.existsByUsername(dto.getUsername())) {
+            throw new ValidationException(USERNAME_EXISTS);
+        }
+        /*if (customerRepository.existsByCEmail(dto.getCEmail())) {
+            throw new ValidationException(EMAIL_EXISTS);
+        }*/
+        if (!dto.getCEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new ValidationException(INVALID_EMAIL);
+        }
+        if (dto.getPassword().length() < 6) {
+            throw new ValidationException(PASSWORD_LEN);
+        }
+        if (!dto.getPhoneNumber().matches("\\d{10}")) {
+            throw new ValidationException(PHONE_LEN);
+        }
+        Customer customer = customerMapper.toEntity(dto);
         Customer saved = customerRepository.save(customer);
-        return customerMapper.toResponseDTO(saved);
+        return customerAssembler.toResponseDTO(saved);
     }
 
     public CustomerResponseDTO updateCustomer(Long id, CustomerRequestDTO dto)
@@ -59,7 +76,7 @@ public class CustomerService {
                 customer.setPhoneNumber(dto.getPhoneNumber());
                 customer.setUsername(dto.getUsername());
                 customer.setPassword(dto.getPassword());
-                return customerMapper.toResponseDTO(customerRepository.save(customer));
+                return customerAssembler.toResponseDTO(customerRepository.save(customer));
             }
             else {
                 throw new CustomerNotFoundException(C_NOTFOUND);
