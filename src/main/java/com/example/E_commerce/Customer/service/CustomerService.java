@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.example.E_commerce.Constants.CommonConstants.*;
 
@@ -39,7 +40,7 @@ public class CustomerService {
                 .map(CustomerAssembler::toResponseDTO);
     }
 
-    public CustomerResponseDTO getCustomerById(long id) {
+    public CustomerResponseDTO getCustomerById(UUID id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
         return customerAssembler.toResponseDTO(customer);
@@ -52,21 +53,12 @@ public class CustomerService {
         /*if (customerRepository.existsByCEmail(dto.getCEmail())) {
             throw new ValidationException(EMAIL_EXISTS);
         }*/
-        if (!dto.getCEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new ValidationException(INVALID_EMAIL);
-        }
-        if (dto.getPassword().length() < 6) {
-            throw new ValidationException(PASSWORD_LEN);
-        }
-        if (!dto.getPhoneNumber().matches("\\d{10}")) {
-            throw new ValidationException(PHONE_LEN);
-        }
         Customer customer = customerMapper.toEntity(dto);
         Customer saved = customerRepository.save(customer);
         return customerAssembler.toResponseDTO(saved);
     }
 
-    public CustomerResponseDTO updateCustomer(Long id, CustomerRequestDTO dto)
+    public CustomerResponseDTO updateCustomer(UUID id, CustomerRequestDTO dto)
     {
             Optional<Customer> customerOptional = customerRepository.findById(id);
             if(customerOptional.isPresent()) {
@@ -83,7 +75,7 @@ public class CustomerService {
             }
     }
 
-    public void deleteCustomer(Long id) {
+    public void deleteCustomer(UUID id) {
         if(!customerRepository.existsById(id)) {
             throw new CustomerNotFoundException(C_NOTFOUND);
         }

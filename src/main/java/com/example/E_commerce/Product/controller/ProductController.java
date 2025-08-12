@@ -6,10 +6,12 @@ import com.example.E_commerce.Product.assembler.ProductAssembler;
 import com.example.E_commerce.Product.dto.ProductRequestDTO;
 import com.example.E_commerce.Product.dto.ProductResponseDTO;
 import com.example.E_commerce.Product.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.E_commerce.Constants.CommonConstants.P_DELETED;
@@ -48,20 +50,20 @@ public class ProductController {
     }
 
     @PostMapping("/add")
-    public EntityModel<ProductResponseDTO> addProduct(@RequestBody ProductRequestDTO product) {
+    public EntityModel<ProductResponseDTO> addProduct(@Valid @RequestBody ProductRequestDTO product) {
         ProductResponseDTO savedProduct = productService.addProduct(product);
         return productAssembler.toModel(savedProduct);
     }
 
     @PutMapping("/{id}")
-    public EntityModel<ProductResponseDTO> updateProduct(@PathVariable Long id, @RequestBody ProductRequestDTO dto) {
+    public EntityModel<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO dto) {
         ProductResponseDTO updatedProduct = productService.updateProduct(id, dto);
         return productAssembler.toModel(updatedProduct);
     }
 
     @DeleteMapping("/{id}")
-    public EntityModel<String> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return EntityModel.of(P_DELETED);
+        return ResponseEntity.ok(P_DELETED);
     }
 }

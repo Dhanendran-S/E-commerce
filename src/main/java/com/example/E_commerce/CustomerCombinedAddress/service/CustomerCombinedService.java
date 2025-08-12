@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 import static com.example.E_commerce.Constants.CommonConstants.C_NOTFOUND;
 
 
@@ -24,7 +26,7 @@ public class CustomerCombinedService {
         this.customerAddressRepository = customerAddressRepository;
     }
 
-    public CustomerCombinedResponseDTO getCustomerWithAddress(Long id) {
+    public CustomerCombinedResponseDTO getCustomerWithAddress(UUID id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
         return CustomerCombinedAssembler.toResponseDTO(customer);

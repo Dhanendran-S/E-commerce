@@ -16,7 +16,11 @@ public class CustomerAddressAssembler implements RepresentationModelAssembler<Cu
     @Override
     public EntityModel<CustomerAddressResponseDTO> toModel(CustomerAddressResponseDTO dto) {
         return EntityModel.of(dto,
-                linkTo(methodOn(CustomerAddressController.class).getCustomerAddresses(dto.getCustomerId())).withSelfRel());
+                linkTo(methodOn(CustomerAddressController.class)
+                        .getCustomerAddresses(dto.getCustomerId()))
+                        .withRel("show-address")
+                        .withType("GET")
+        );
     }
 
     public static CustomerAddressResponseDTO toResponseDTO(CustomerAddress entity) {

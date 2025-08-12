@@ -38,7 +38,7 @@ public class OrderMapper {
         List<OrderCustomerDTO> customerDTOList = List.of(
                 OrderCustomerDTO.builder()
                         .customerId(order.getCustomer().getCId())
-                        .username(order.getCustomer().getUsername())
+                        //.username(order.getCustomer().getUsername())
                         .customerName(order.getCustomer().getCName())
                         .build()
         );

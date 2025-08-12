@@ -6,12 +6,15 @@ import com.example.E_commerce.Customer.dto.CustomerResponseDTO;
 import com.example.E_commerce.Persistance.utils.CustomerMapper;
 import com.example.E_commerce.Customer.service.CustomerService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 import static com.example.E_commerce.Constants.CommonConstants.C_DELETED;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -45,24 +48,24 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public CustomerResponseDTO getCustomerById(@PathVariable Long id) {
+    public CustomerResponseDTO getCustomerById(@PathVariable UUID id) {
         return customerService.getCustomerById(id);
     }
 
     @PostMapping("/create")
-    public EntityModel<CustomerResponseDTO> createCustomer(@RequestBody CustomerRequestDTO customerRequestDTO) {
+    public EntityModel<CustomerResponseDTO> createCustomer(@Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
         CustomerResponseDTO savedCustomer = customerService.saveCustomer(customerRequestDTO);
         return customerAssembler.toModel(savedCustomer);
     }
 
     @PutMapping("/{id}")
-    public EntityModel<CustomerResponseDTO> updateCustomer(@PathVariable Long id, @RequestBody CustomerRequestDTO dto) {
+    public EntityModel<CustomerResponseDTO> updateCustomer(@PathVariable UUID id, @Valid @RequestBody CustomerRequestDTO dto) {
         CustomerResponseDTO updatedCustomer = customerService.updateCustomer(id, dto);
         return customerAssembler.toModel(updatedCustomer);
     }
 
     @DeleteMapping("/{id}")
-    public EntityModel<String> deleteCustomer(@PathVariable Long id) {
+    public EntityModel<String> deleteCustomer(@PathVariable UUID id) {
         customerService.deleteCustomer(id);
         return EntityModel.of(C_DELETED,
                 linkTo(methodOn(CustomerController.class)

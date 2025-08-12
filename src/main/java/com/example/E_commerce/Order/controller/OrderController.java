@@ -4,6 +4,7 @@ import com.example.E_commerce.Order.assembler.OrderAssembler;
 import com.example.E_commerce.Order.dto.OrderRequestDTO;
 import com.example.E_commerce.Order.dto.OrderResponseDTO;
 import com.example.E_commerce.Order.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public EntityModel<OrderResponseDTO> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
+    public EntityModel<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO orderRequestDTO) {
         OrderResponseDTO createdOrder = orderService.createOrder(orderRequestDTO);
         return orderAssembler.toModel(createdOrder);
     }

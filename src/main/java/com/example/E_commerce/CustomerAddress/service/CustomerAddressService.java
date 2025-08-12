@@ -13,6 +13,7 @@ import com.example.E_commerce.Persistance.utils.CustomerAddressMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.example.E_commerce.Constants.CommonConstants.*;
 import static io.micrometer.common.util.StringUtils.isBlank;
@@ -39,14 +40,14 @@ public class CustomerAddressService {
                 .toList();
     }*/
 
-    public CustomerAddressResponseDTO getCustomerAddressById(Long id) {
+    public CustomerAddressResponseDTO getCustomerAddressById(UUID id) {
         CustomerAddress entity = repository.findById(id)
                 .orElseThrow(() -> new AddressNotFoundException(C_ADDRESS_NOT_FOUND));
         return assembler.toResponseDTO(entity);
     }
 
     public CustomerAddressResponseDTO addAddress(CustomerAddressRequestDTO dto) {
-        if (dto.getCustomerId() == null || dto.getCustomerId() <= 0) {
+        if (dto.getCustomerId() == null) {
             throw new CustomerNotFoundException(INVALID_CID);
         }
         if (isBlank(dto.getStreetName()) || isBlank(dto.getDistrict())
@@ -61,7 +62,7 @@ public class CustomerAddressService {
         return assembler.toResponseDTO(savedAddress);
     }
 
-    public CustomerAddressResponseDTO updateAddress(Long customerId, CustomerAddressRequestDTO dto) {
+    public CustomerAddressResponseDTO updateAddress(UUID customerId, CustomerAddressRequestDTO dto) {
 
         Optional<CustomerAddress> optionalAddress = repository.findById(customerId);
         if (optionalAddress.isEmpty()) {

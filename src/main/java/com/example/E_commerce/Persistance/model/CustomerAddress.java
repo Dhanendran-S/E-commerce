@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -13,8 +15,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CustomerAddress {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long customerAddressId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID customerAddressId;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id", referencedColumnName = "cId")

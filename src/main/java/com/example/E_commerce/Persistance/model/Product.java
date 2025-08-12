@@ -28,6 +28,6 @@ public class Product {
     private BigDecimal price;
     private Integer stockQty;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product")
     private List<OrderProduct> orderProducts = new ArrayList<>();
 }

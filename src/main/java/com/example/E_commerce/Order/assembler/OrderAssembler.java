@@ -31,20 +31,21 @@ public class OrderAssembler implements RepresentationModelAssembler<OrderRespons
         List<OrderCustomerDTO> customerDTOList = List.of(
                 OrderCustomerDTO.builder()
                         .customerId(order.getCustomer().getCId())
-                        .username(order.getCustomer().getUsername())
                         .customerName(order.getCustomer().getCName())
                         .build()
         );
-        List<ProductResponseDTO> productDTOList = order.getOrderProducts()
+        List<ProductResponseDTO> productDTOs = order.getOrderProducts()
                 .stream()
                 .map(op -> ProductResponseDTO.builder()
-                        .id(op.getProduct().getPId())
-                        .name(op.getProduct().getName())
-                        .description(op.getProduct().getDescription())
-                        .price(op.getProduct().getPrice())
-                        .quantity(op.getQuantity()) // comes directly from DB
-                        .build())
+                        .id(op.getProduct() != null ? op.getProduct().getPId() : null)
+                        .name(op.getProduct() != null ? op.getProduct().getName() : op.getProductName())
+                        .description(op.getProduct() != null ? op.getProduct().getDescription() : null)
+                        .price(op.getProduct() != null ? op.getProduct().getPrice() : op.getProductPrice())
+                        .quantity(op.getQuantity())
+                        .build()
+                )
                 .toList();
+
 
         return OrderResponseDTO.builder()
                 .orderId(order.getOrderId())
@@ -52,7 +53,7 @@ public class OrderAssembler implements RepresentationModelAssembler<OrderRespons
                 .totalAmount(order.getTotalAmount())
                 .status(order.getStatus())
                 .customers(customerDTOList)
-                .products(productDTOList)
+                .products(productDTOs)
                 .build();
     }
 }

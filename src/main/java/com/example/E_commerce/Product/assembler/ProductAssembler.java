@@ -21,6 +21,7 @@ public class ProductAssembler implements RepresentationModelAssembler<ProductRes
                 linkTo(methodOn(ProductController.class)
                         .getAllProducts(null, 0, 50, "price", "desc"))
                         .withRel("all-products")
+                        .expand()
         );
     }
 

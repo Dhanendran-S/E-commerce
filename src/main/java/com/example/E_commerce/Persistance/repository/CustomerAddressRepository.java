@@ -4,6 +4,8 @@ import com.example.E_commerce.Persistance.model.CustomerAddress;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface CustomerAddressRepository extends JpaRepository<CustomerAddress, Long> {
+public interface CustomerAddressRepository extends JpaRepository<CustomerAddress, UUID> {
 }

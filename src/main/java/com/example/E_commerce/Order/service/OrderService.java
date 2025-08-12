@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static com.example.E_commerce.Constants.CommonConstants.*;
 
@@ -71,6 +72,8 @@ public class OrderService {
                             .order(orderSaved)
                             .product(product)
                             .quantity(pq.getQuantity())
+                            .productName(product.getName())
+                            .productPrice(product.getPrice())
                             .build();
                 })
                 .toList();
@@ -100,7 +103,7 @@ public class OrderService {
                 .toList();
     }
 
-    private Customer getCustomerOrThrow(Long customerId) {
+    private Customer getCustomerOrThrow(UUID customerId) {
         return customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
     }

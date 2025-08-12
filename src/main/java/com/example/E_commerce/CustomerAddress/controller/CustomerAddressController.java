@@ -6,6 +6,7 @@ import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import com.example.E_commerce.CustomerAddress.service.CustomerAddressService;
 
 import com.example.E_commerce.Persistance.utils.CustomerMapper;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -39,21 +41,21 @@ public class CustomerAddressController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerAddressResponseDTO> getCustomerAddresses(@PathVariable Long id) {
+    public ResponseEntity<CustomerAddressResponseDTO> getCustomerAddresses(@PathVariable UUID id) {
         CustomerAddressResponseDTO dto = customerAddressService.getCustomerAddressById(id);
         return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<CustomerAddressResponseDTO>> addAddress(@RequestBody CustomerAddressRequestDTO dto) {
+    public ResponseEntity<EntityModel<CustomerAddressResponseDTO>> addAddress(@Valid @RequestBody CustomerAddressRequestDTO dto) {
         CustomerAddressResponseDTO savedDto = customerAddressService.addAddress(dto);
         return ResponseEntity.ok(customerAddressAssembler.toModel(savedDto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<CustomerAddressResponseDTO>> updateAddress(
-            @PathVariable Long id,
-            @RequestBody CustomerAddressRequestDTO dto
+            @PathVariable UUID id,
+            @Valid @RequestBody CustomerAddressRequestDTO dto
     ) {
         CustomerAddressResponseDTO savedDto = customerAddressService.updateAddress(id, dto);
         return ResponseEntity.ok(customerAddressAssembler.toModel(savedDto));

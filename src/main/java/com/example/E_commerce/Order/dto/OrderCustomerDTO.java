@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class OrderCustomerDTO {
-    private Long customerId;
-    private String username;
+    private UUID customerId;
     private String customerName;
 }
 

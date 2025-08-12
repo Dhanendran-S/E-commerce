@@ -7,13 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerResponseDTO {
-    private long cId;
+    private UUID cId;
     private String cName;
     private String cEmail;
     private String PhoneNumber;
