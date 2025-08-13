@@ -6,11 +6,13 @@ import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import com.example.E_commerce.CustomerAddress.service.CustomerAddressService;
 
 import com.example.E_commerce.Persistance.utils.CustomerMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,6 +61,11 @@ public class CustomerAddressController {
     ) {
         CustomerAddressResponseDTO savedDto = customerAddressService.updateAddress(id, dto);
         return ResponseEntity.ok(customerAddressAssembler.toModel(savedDto));
+    }
+
+    @GetMapping("/csrf-token")
+    public CsrfToken getCsrfToken(HttpServletRequest request) {
+        return (CsrfToken) request.getAttribute("_csrf");
     }
 
     /*@DeleteMapping("/{id}")

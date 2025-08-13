@@ -4,8 +4,10 @@ import com.example.E_commerce.Order.assembler.OrderAssembler;
 import com.example.E_commerce.Order.dto.OrderRequestDTO;
 import com.example.E_commerce.Order.dto.OrderResponseDTO;
 import com.example.E_commerce.Order.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,5 +42,16 @@ public class OrderController {
                 .stream()
                 .map(orderAssembler::toModel)
                 .toList();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public EntityModel<OrderResponseDTO> deleteOrderById(@PathVariable Long id) {
+        OrderResponseDTO cancelledOrder = orderService.cancelOrder(id);
+        return EntityModel.of(cancelledOrder);
+    }
+
+    @GetMapping("/csrf-token")
+    public CsrfToken getCsrfToken(HttpServletRequest request) {
+        return (CsrfToken) request.getAttribute("_csrf");
     }
 }

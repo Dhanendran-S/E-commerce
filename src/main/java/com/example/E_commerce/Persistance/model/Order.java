@@ -25,7 +25,8 @@ public class Order {
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
     private int orderQuantity;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "cId")

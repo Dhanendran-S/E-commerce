@@ -6,12 +6,14 @@ import com.example.E_commerce.Product.assembler.ProductAssembler;
 import com.example.E_commerce.Product.dto.ProductRequestDTO;
 import com.example.E_commerce.Product.dto.ProductResponseDTO;
 import com.example.E_commerce.Product.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.E_commerce.Constants.CommonConstants.P_DELETED;
@@ -65,5 +67,10 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok(P_DELETED);
+    }
+
+    @GetMapping("/csrf-token")
+    public CsrfToken getCsrfToken(HttpServletRequest request) {
+        return (CsrfToken) request.getAttribute("_csrf");
     }
 }

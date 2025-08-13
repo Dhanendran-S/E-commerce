@@ -6,12 +6,14 @@ import com.example.E_commerce.Customer.dto.CustomerResponseDTO;
 import com.example.E_commerce.Persistance.utils.CustomerMapper;
 import com.example.E_commerce.Customer.service.CustomerService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -72,5 +74,10 @@ public class CustomerController {
                         .getAllCustomers(0, 10, "cId", "asc"))
                         .withRel("all-customers")
                         .withType("GET"));
+    }
+
+    @GetMapping("/csrf-token")
+    public CsrfToken getCsrfToken(HttpServletRequest request) {
+        return (CsrfToken) request.getAttribute("_csrf");
     }
 }

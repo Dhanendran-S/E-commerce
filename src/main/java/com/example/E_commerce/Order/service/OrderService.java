@@ -13,6 +13,7 @@ import com.example.E_commerce.Persistance.repository.OrderProductRepository;
 import com.example.E_commerce.Persistance.repository.OrderRepository;
 import com.example.E_commerce.Persistance.repository.ProductRepository;
 import com.example.E_commerce.Persistance.utils.OrderMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,6 +40,7 @@ public class OrderService {
         this.orderProductRepository = orderProductRepository;
     }
 
+    //New order
     public OrderResponseDTO createOrder(OrderRequestDTO dto) {
         if (dto.getCustomerId() == null) {
             throw new CustomerNotFoundException(INVALID_CID);
@@ -83,6 +85,7 @@ public class OrderService {
         return orderAssembler.toResponseDTO(orderSaved, dto.getProducts());
     }
 
+    //Orders by Id
     public OrderResponseDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(O_NOTFOUND));
@@ -95,12 +98,23 @@ public class OrderService {
         return orderAssembler.toResponseDTO(order, orderedProducts);
     }
 
+    //Get all orders
     public List<OrderResponseDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         return orders
                 .stream()
                 .map(order -> orderAssembler.toResponseDTO(order, null))
                 .toList();
+    }
+
+    //Cancel the order
+    public OrderResponseDTO cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(O_NOTFOUND));
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return orderAssembler.toResponseDTO(order, null);
     }
 
     private Customer getCustomerOrThrow(UUID customerId) {
@@ -132,6 +146,8 @@ public class OrderService {
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add); //Like total += price inside for loop
     }
+
+
 }
 
 

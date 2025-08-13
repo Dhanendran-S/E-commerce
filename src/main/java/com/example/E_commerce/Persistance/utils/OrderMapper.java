@@ -7,6 +7,7 @@ import com.example.E_commerce.Order.dto.OrderResponseDTO;
 import com.example.E_commerce.Order.dto.ProductQuantityDTO;
 import com.example.E_commerce.Persistance.model.Customer;
 import com.example.E_commerce.Persistance.model.Order;
+import com.example.E_commerce.Persistance.model.OrderStatus;
 import com.example.E_commerce.Persistance.model.Product;
 import com.example.E_commerce.Product.dto.ProductResponseDTO;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ public class OrderMapper {
                 .customer(customer)
                 .orderDate(LocalDateTime.now())
                 .totalAmount(totalPrice)
-                .status("PLACED")
+                .status(OrderStatus.PLACED)
                 .orderQuantity(
                         dto.getProducts()
                                 .stream()
