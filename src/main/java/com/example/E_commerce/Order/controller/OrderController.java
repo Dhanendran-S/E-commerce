@@ -30,7 +30,7 @@ public class OrderController {
         return orderAssembler.toModel(createdOrder);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/my-order/{id}")
     public OrderResponseDTO getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id);
     }

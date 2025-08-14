@@ -49,7 +49,7 @@ public class CustomerController {
         return pagedResourcesAssembler.toModel(customers, customerAssembler);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/my/{id}")
     public CustomerResponseDTO getCustomerById(@PathVariable UUID id) {
         return customerService.getCustomerById(id);
     }
@@ -60,13 +60,13 @@ public class CustomerController {
         return customerAssembler.toModel(savedCustomer);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public EntityModel<CustomerResponseDTO> updateCustomer(@PathVariable UUID id, @Valid @RequestBody CustomerRequestDTO dto) {
         CustomerResponseDTO updatedCustomer = customerService.updateCustomer(id, dto);
         return customerAssembler.toModel(updatedCustomer);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public EntityModel<String> deleteCustomer(@PathVariable UUID id) {
         customerService.deleteCustomer(id);
         return EntityModel.of(C_DELETED,

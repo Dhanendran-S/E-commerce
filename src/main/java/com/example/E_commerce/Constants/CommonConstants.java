@@ -17,4 +17,5 @@ public class CommonConstants {
     public static final String P_SAME = "Product with this name already exists in the table";
     public static final String O_NOTFOUND = "Order Not Found";
     //public static final String O_ATLEAST = "Order must contain at least one product.";
+    public static final String U_NOTFOUND = "User Not Found";
 }
