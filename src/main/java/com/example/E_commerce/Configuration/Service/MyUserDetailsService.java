@@ -33,6 +33,6 @@ public class MyUserDetailsService implements UserDetailsService {
                 user.getUsername(),
                 user.getPassword(),
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_"+user.getRole().toUpperCase()))
-        ); //ROLE_ADMIN / ROLE_USER
+        ); //ROLE_ADMIN / ROLE_CUSTOMER
     }
 }

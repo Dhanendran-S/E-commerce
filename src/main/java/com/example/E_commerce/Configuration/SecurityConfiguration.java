@@ -1,5 +1,7 @@
 package com.example.E_commerce.Configuration;
 
+import com.example.E_commerce.Configuration.Filter.JwtFilter;
+import com.example.E_commerce.Configuration.Handler.CustomAccessDeniedHandler;
 import com.example.E_commerce.Configuration.Service.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,8 +30,14 @@ public class SecurityConfiguration {
 
     private final MyUserDetailsService userDetailsService;
 
-    public SecurityConfiguration(MyUserDetailsService userDetailsService) {
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    private final JwtFilter jwtFilter;
+
+    public SecurityConfiguration(MyUserDetailsService userDetailsService,  CustomAccessDeniedHandler accessDeniedHandler, JwtFilter jwtFilter ) {
         this.userDetailsService = userDetailsService;
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
@@ -41,23 +50,36 @@ public class SecurityConfiguration {
                         .requestMatchers("/customers/all", "/customers/delete/**").hasRole("ADMIN")
                         .requestMatchers("/customers/my/**", "/customers/update/**").hasAnyRole("ADMIN", "CUSTOMER")
 
+                        // Customers Address
+                        .requestMatchers("/customers-address/my-address/**", "/customers-address/add-address", "/customers-address/update-address/**").hasRole("CUSTOMER")
+
+                        // Customers Combined Address
+                        .requestMatchers("/customer-combined/**").hasRole("CUSTOMER")
+
                         // Orders
                         .requestMatchers("/orders/all", "/orders/delete/**").hasRole("ADMIN")
                         .requestMatchers("/orders/create", "/orders/my-order/**", "/orders/delete-my/**").hasAnyRole("ADMIN", "CUSTOMER")
+
+                        // Products
+                        .requestMatchers("/products/add/**", "/products/update/**", "/products/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/products/product/**").hasAnyRole("ADMIN", "CUSTOMER")
 
                         // Public APIs
                         .requestMatchers(
                                 "/add-user",
                                 "/customers/create",
-                                "/products/all"
+                                "/products/all",
+                                "/home/login"
                         ).permitAll()
-
                         // Default rule
                         .anyRequest().authenticated()
+
                 )
-                //.formLogin(Customizer.withDefaults());
+                //.exceptionHandling(ex -> ex
+                       // .accessDeniedHandler(accessDeniedHandler) )// custom message for 403
+                .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults()) //For Postman login
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .build();
     }
 
@@ -67,6 +89,12 @@ public class SecurityConfiguration {
         provider.setPasswordEncoder(new BCryptPasswordEncoder(10));
         provider.setUserDetailsService(userDetailsService);
         return provider;
+    }
+
+    //JWT
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
     /*@Bean
     public UserDetailsService userDetailsService() {

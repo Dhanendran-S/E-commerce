@@ -46,7 +46,7 @@ public class ProductController {
         return pagedResourcesAssembler.toModel(products, productAssembler);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/product/{id}")
     public ProductResponseDTO getProductById(@PathVariable Long id){
         return productService.getProductById(id);
     }
@@ -57,13 +57,13 @@ public class ProductController {
         return productAssembler.toModel(savedProduct);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public EntityModel<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO dto) {
         ProductResponseDTO updatedProduct = productService.updateProduct(id, dto);
         return productAssembler.toModel(updatedProduct);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok(P_DELETED);

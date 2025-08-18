@@ -42,19 +42,19 @@ public class CustomerAddressController {
     }*/
 
 
-    @GetMapping("/{id}")
+    @GetMapping("/my-address/{id}")
     public ResponseEntity<CustomerAddressResponseDTO> getCustomerAddresses(@PathVariable UUID id) {
         CustomerAddressResponseDTO dto = customerAddressService.getCustomerAddressById(id);
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping
+    @PostMapping("/add-address")
     public ResponseEntity<EntityModel<CustomerAddressResponseDTO>> addAddress(@Valid @RequestBody CustomerAddressRequestDTO dto) {
         CustomerAddressResponseDTO savedDto = customerAddressService.addAddress(dto);
         return ResponseEntity.ok(customerAddressAssembler.toModel(savedDto));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update-address/{id}")
     public ResponseEntity<EntityModel<CustomerAddressResponseDTO>> updateAddress(
             @PathVariable UUID id,
             @Valid @RequestBody CustomerAddressRequestDTO dto
