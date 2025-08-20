@@ -1,7 +1,7 @@
 package com.example.E_commerce.Configuration.Filter;
 
 import com.example.E_commerce.Configuration.Service.JWTService;
-import com.example.E_commerce.Configuration.Service.MyUserDetailsService;
+import com.example.E_commerce.Configuration.Service.CustomerDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -9,13 +9,12 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.catalina.User;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,18 +26,20 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter { //Interceptor
 
     private final JWTService jwtService;
-    private final ApplicationContext applicationContext;
     private final UserDetailsService userDetailsService;
+    private final CustomerDetailsService customerDetailsService;
+    private final ApplicationContext applicationContext;
 
-    public JwtFilter(JWTService jwtService,  ApplicationContext applicationContext, UserDetailsService userDetailsService) {
+    public JwtFilter(JWTService jwtService, UserDetailsService userDetailsService,  CustomerDetailsService customerDetailsService, ApplicationContext applicationContext) {
         this.jwtService = jwtService;
-        this.applicationContext = applicationContext;
         this.userDetailsService = userDetailsService;
+        this.customerDetailsService = customerDetailsService;
+        this.applicationContext = applicationContext;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImlhdCI6MTc1NTUxNjAyOSwiZXhwIjoxNzU1NjI0MDI5fQ.3aYyvWcT2KJp6JPwKFZk9WtJBQqAgEIEtKw_sJ6L43w
+        // Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ5YXNoOTgiLCJpYXQiOjE3NTU2NzMzMDMsImV4cCI6MTc1NTY3MzkwM30.Ns6fjtV1i-SEvrnD0rqJHkaNbNe40dZJqm6x8b6wguo
         String auth = request.getHeader("Authorization");
         String token = null;
         String username = null;
@@ -49,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter { //Interceptor
             }
             // Validate JWT and Set Authentication
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = applicationContext.getBean(CustomerDetailsService.class).loadUserByUsername(username); //User alice, Admin Yash
                 if (jwtService.validateToken(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

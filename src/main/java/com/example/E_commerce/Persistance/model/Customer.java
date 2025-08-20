@@ -20,6 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Builder
+@Table(name = "users")
 public class Customer {
 
     @Id
@@ -30,11 +31,19 @@ public class Customer {
     private String phoneNumber;
     private String username;
     private String password;
+    private String role;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<CustomerAddress> addresses;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Order> orders = new ArrayList<>();
+
+    @PrePersist
+    public void assignRole() {
+        if (this.role == null) {
+            this.role = "USER";
+        }
+    }
 }
 

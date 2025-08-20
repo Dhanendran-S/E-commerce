@@ -5,15 +5,19 @@ import com.example.E_commerce.Customer.dto.CustomerResponseDTO;
 import com.example.E_commerce.CustomerAddress.dto.CustomerAddressResponseDTO;
 import com.example.E_commerce.Persistance.model.CustomerAddress;
 import com.example.E_commerce.Persistance.model.Customer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.E_commerce.Constants.CommonConstants.USER;
+
 @Component
 public class CustomerMapper {
 
     private final CustomerAddressMapper customerAddressMapper;
+    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public CustomerMapper(CustomerAddressMapper customerAddressMapper) {
         this.customerAddressMapper = customerAddressMapper;
@@ -38,8 +42,8 @@ public class CustomerMapper {
                 .cEmail(dto.getCEmail())
                 .phoneNumber(dto.getPhoneNumber())
                 .username(dto.getUsername())
-                .password(dto.getPassword())
-                //.role(dto.g)
+                .password(encoder.encode(dto.getPassword()))
+                .role(USER)
                 .build();
     }
 

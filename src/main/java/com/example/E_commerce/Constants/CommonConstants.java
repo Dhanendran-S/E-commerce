@@ -18,4 +18,7 @@ public class CommonConstants {
     public static final String O_NOTFOUND = "Order Not Found";
     //public static final String O_ATLEAST = "Order must contain at least one product.";
     public static final String U_NOTFOUND = "User Not Found";
+    public static final String USER = "USER";
+    public static final String PENDING = "PENDING";
+    public static final String CANCELLED = "CANCELLED";
 }

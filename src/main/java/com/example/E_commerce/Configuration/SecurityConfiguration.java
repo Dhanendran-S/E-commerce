@@ -2,7 +2,7 @@ package com.example.E_commerce.Configuration;
 
 import com.example.E_commerce.Configuration.Filter.JwtFilter;
 import com.example.E_commerce.Configuration.Handler.CustomAccessDeniedHandler;
-import com.example.E_commerce.Configuration.Service.MyUserDetailsService;
+import com.example.E_commerce.Configuration.Service.CustomerDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,28 +13,21 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    private final MyUserDetailsService userDetailsService;
+    private final CustomerDetailsService userDetailsService;
 
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
     private final JwtFilter jwtFilter;
 
-    public SecurityConfiguration(MyUserDetailsService userDetailsService,  CustomAccessDeniedHandler accessDeniedHandler, JwtFilter jwtFilter ) {
+    public SecurityConfiguration(CustomerDetailsService userDetailsService, CustomAccessDeniedHandler accessDeniedHandler, JwtFilter jwtFilter ) {
         this.userDetailsService = userDetailsService;
         this.accessDeniedHandler = accessDeniedHandler;
         this.jwtFilter = jwtFilter;
@@ -48,25 +41,25 @@ public class SecurityConfiguration {
 
                         // Customers
                         .requestMatchers("/customers/all", "/customers/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/customers/my/**", "/customers/update/**").hasAnyRole("ADMIN", "CUSTOMER")
+                        .requestMatchers("/customers/my/**", "/customers/update/**").hasAnyRole("ADMIN", "USER")
 
                         // Customers Address
-                        .requestMatchers("/customers-address/my-address/**", "/customers-address/add-address", "/customers-address/update-address/**").hasRole("CUSTOMER")
+                        .requestMatchers("/customers-address/my-address/**", "/customers-address/add-address", "/customers-address/update-address/**").hasRole("USER")
 
                         // Customers Combined Address
-                        .requestMatchers("/customer-combined/**").hasRole("CUSTOMER")
+                        .requestMatchers("/customer-combined/**").hasRole("USER")
 
                         // Orders
                         .requestMatchers("/orders/all", "/orders/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/orders/create", "/orders/my-order/**", "/orders/delete-my/**").hasAnyRole("ADMIN", "CUSTOMER")
+                        .requestMatchers("/orders/create", "/orders/my-order/**", "/orders/delete-my/**").hasAnyRole("ADMIN", "USER")
 
                         // Products
                         .requestMatchers("/products/add/**", "/products/update/**", "/products/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/products/product/**").hasAnyRole("ADMIN", "CUSTOMER")
+                        .requestMatchers("/products/product/**").hasAnyRole("ADMIN", "USER")
 
                         // Public APIs
                         .requestMatchers(
-                                "/add-user",
+                              //  "/add-user",
                                 "/customers/create", //username, password -->
                                 "/products/all",
                                 "/home/login"
@@ -78,7 +71,8 @@ public class SecurityConfiguration {
                        .accessDeniedHandler(accessDeniedHandler) )// custom message for 403
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults()) //For Postman login
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

@@ -1,7 +1,7 @@
 package com.example.E_commerce.Configuration.Controller;
 
 import com.example.E_commerce.Configuration.Service.UserService;
-import com.example.E_commerce.Persistance.model.Users;
+import com.example.E_commerce.Persistance.model.Customer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +35,8 @@ public class UserController {
 
     //JWT
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Users user) {
-        String token = userService.verify(user);
+    public Map<String, String> login(@RequestBody Customer customer) {
+        String token = userService.verify(customer);
         Map<String, String> response = new HashMap<>();
         if (!"fail".equals(token)) {
             response.put("token", token);
@@ -46,16 +46,16 @@ public class UserController {
         return response;
     }
 
-    //For new User
+    /*//For new User
     @PostMapping("/add-user")
-    public String addUser(@RequestBody Users user, HttpServletRequest request) {
-        userService.addUser(user);
+    public String addUser(@RequestBody Customer customer, HttpServletRequest request) {
+        userService.addUser(customer);
 
         //Session Token
         HttpSession session = request.getSession();
-        session.setAttribute("LoggedInUser", user);
+        session.setAttribute("LoggedInUser", customer);
         return "User added and stored sucessfully";
-    }
+    }*/
 
     //For logout from the current session
     @PostMapping("/logout")
