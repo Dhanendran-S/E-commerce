@@ -25,7 +25,8 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = repository.getByUsername(username);
+        Users user = repository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
         if(user == null){
             throw new UsernameNotFoundException(U_NOTFOUND);
         }

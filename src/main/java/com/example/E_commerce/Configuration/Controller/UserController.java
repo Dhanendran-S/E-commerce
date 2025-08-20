@@ -38,7 +38,7 @@ public class UserController {
     public Map<String, String> login(@RequestBody Users user) {
         String token = userService.verify(user);
         Map<String, String> response = new HashMap<>();
-        if(!token.equals("fail")) {
+        if (!"fail".equals(token)) {
             response.put("token", token);
         } else {
             response.put("error", "Invalid username or password");
@@ -54,9 +54,6 @@ public class UserController {
         //Session Token
         HttpSession session = request.getSession();
         session.setAttribute("LoggedInUser", user);
-
-        //JWT
-
         return "User added and stored sucessfully";
     }
 

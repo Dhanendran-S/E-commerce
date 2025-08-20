@@ -39,6 +39,7 @@ public class CustomerMapper {
                 .phoneNumber(dto.getPhoneNumber())
                 .username(dto.getUsername())
                 .password(dto.getPassword())
+                //.role(dto.g)
                 .build();
     }
 

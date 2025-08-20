@@ -67,16 +67,15 @@ public class SecurityConfiguration {
                         // Public APIs
                         .requestMatchers(
                                 "/add-user",
-                                "/customers/create",
+                                "/customers/create", //username, password -->
                                 "/products/all",
                                 "/home/login"
                         ).permitAll()
                         // Default rule
                         .anyRequest().authenticated()
-
                 )
-                //.exceptionHandling(ex -> ex
-                       // .accessDeniedHandler(accessDeniedHandler) )// custom message for 403
+                .exceptionHandling(ex -> ex
+                       .accessDeniedHandler(accessDeniedHandler) )// custom message for 403
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults()) //For Postman login
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
@@ -86,7 +85,7 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(new BCryptPasswordEncoder(10));
+        provider.setPasswordEncoder(new BCryptPasswordEncoder(10)); //for production -> strength must be 12
         provider.setUserDetailsService(userDetailsService);
         return provider;
     }

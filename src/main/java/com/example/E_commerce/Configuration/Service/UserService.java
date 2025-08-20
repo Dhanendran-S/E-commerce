@@ -30,19 +30,12 @@ public class UserService {
     }
 
     public String verify(Users user) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
-            );
-            // If authentication is successful, generate JWT token
-            if (authentication.isAuthenticated()) {
-                return jwtService.generateToken(user.getUsername());
-            } else {
-                throw new RuntimeException("Authentication failed");
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid username or password");
+        Users dbUser = userRepo.findByUsername(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+        if (encoder.matches(user.getPassword(), dbUser.getPassword())) {
+            return jwtService.generateToken(dbUser.getUsername()); //token generation
+        } else {
+            throw new RuntimeException("Invalid password!");
         }
     }
 }

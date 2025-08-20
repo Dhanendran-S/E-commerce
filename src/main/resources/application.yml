@@ -1,0 +1,14 @@
+security:
+  access-rules:
+    "/customers/all": ["ADMIN"]
+    "/customers/delete/**": ["ADMIN"]
+    "/customers/my/**": ["ADMIN", "CUSTOMER"]
+    "/customers/update/**": ["ADMIN", "CUSTOMER"]
+    "/customers-address/**": ["CUSTOMER"]
+    "/customer-combined/**": ["CUSTOMER"]
+    "/orders/**": ["ADMIN", "CUSTOMER"]
+    "/products/**": ["ADMIN", "CUSTOMER"]
+    "/add-user": ["PERMIT_ALL"]
+    "/customers/create": ["PERMIT_ALL"]
+    "/products/all": ["PERMIT_ALL"]
+    "/home/login": ["PERMIT_ALL"]
