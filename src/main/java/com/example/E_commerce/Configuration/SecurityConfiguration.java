@@ -62,7 +62,8 @@ public class SecurityConfiguration {
                               //  "/add-user",
                                 "/customers/create", //username, password -->
                                 "/products/all",
-                                "/home/login"
+                                "/home/**",
+                                "/kafka/**"
                         ).permitAll()
                         // Default rule
                         .anyRequest().authenticated()

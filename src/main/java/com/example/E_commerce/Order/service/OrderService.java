@@ -3,6 +3,7 @@ package com.example.E_commerce.Order.service;
 import com.example.E_commerce.Exception.CustomerNotFoundException;
 import com.example.E_commerce.Exception.OrderNotFoundException;
 import com.example.E_commerce.Exception.ProductNotFoundException;
+import com.example.E_commerce.Kafka.Producer.ProducerService;
 import com.example.E_commerce.Order.assembler.OrderAssembler;
 import com.example.E_commerce.Order.dto.OrderRequestDTO;
 import com.example.E_commerce.Order.dto.OrderResponseDTO;
@@ -31,13 +32,15 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final OrderAssembler orderAssembler;
     private final OrderProductRepository  orderProductRepository;
+    private final ProducerService producerService;
 
-    public OrderService(OrderRepository orderRepository, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository) {
+    public OrderService(OrderRepository orderRepository, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository,  ProducerService producerService) {
         this.orderRepository = orderRepository;
         this.orderAssembler = orderAssembler;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.orderProductRepository = orderProductRepository;
+        this.producerService = producerService;
     }
 
     //New order
@@ -58,6 +61,10 @@ public class OrderService {
         BigDecimal totalPrice = calculateTotalPrice(dto.getProducts());
         Order order = OrderMapper.toEntity(dto, customer, totalPrice);
         Order orderSaved = orderRepository.save(order);
+
+        // Send Kafka message
+        String kafkaMessage = "New Order Placed: OrderID = " + orderSaved.getOrderId() + ", CustomerID = " + customer.getCId();
+        producerService.sendMessage(kafkaMessage);
 
         List<OrderProduct> orderProducts = dto.getProducts()
                 .stream()
@@ -82,7 +89,9 @@ public class OrderService {
 
         orderProductRepository.saveAll(orderProducts);
         orderSaved.setOrderProducts(orderProducts);
-        return orderAssembler.toResponseDTO(orderSaved, dto.getProducts());
+        OrderResponseDTO orderResponseDTO = orderAssembler.toResponseDTO(orderSaved, dto.getProducts());
+        producerService.sendMessage(orderResponseDTO);
+        return orderResponseDTO;
     }
 
     //Orders by Id

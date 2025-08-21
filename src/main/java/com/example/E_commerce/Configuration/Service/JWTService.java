@@ -1,20 +1,16 @@
 package com.example.E_commerce.Configuration.Service;
 
+import com.example.E_commerce.Persistance.model.Customer;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,18 +22,28 @@ public class JWTService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
-    private long expiration;
+    @Value("${jwt.access_expiration}")
+    private long accessExpiration;
 
-    public String generateToken(String username) {
+    @Value("${jwt.refresh_expiration}")
+    private long refreshExpiration;
+
+    public String accessToken(String username) {
         Map<String,Object> claims = new HashMap<>();
         return Jwts.builder()
-                .claims()
-                .add(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration)) // 30 mins
-                .and()
+                .expiration(new Date(System.currentTimeMillis() + accessExpiration)) // 1 hr
+                .signWith(getKey())
+                .compact();
+    }
+
+    public String refreshToken(String username) {
+        Map<String,Object> claims = new HashMap<>();
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + refreshExpiration)) //10 hrs
                 .signWith(getKey())
                 .compact();
     }
