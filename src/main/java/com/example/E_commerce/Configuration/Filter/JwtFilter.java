@@ -70,10 +70,10 @@ public class JwtFilter extends OncePerRequestFilter { //Interceptor
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Invalid token\"}");
         }
-        catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Something went wrong\"}");
-        }
+//        catch (Exception e) {
+//            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//            response.setContentType("application/json");
+//            response.getWriter().write("{\"error\": \"Something went wrong\"}");
+//        }
     }
 }

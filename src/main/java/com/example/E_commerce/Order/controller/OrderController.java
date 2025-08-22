@@ -1,5 +1,7 @@
 package com.example.E_commerce.Order.controller;
 
+import com.example.E_commerce.Customer.dto.CustomerRequestDTO;
+import com.example.E_commerce.Customer.dto.CustomerResponseDTO;
 import com.example.E_commerce.Order.assembler.OrderAssembler;
 import com.example.E_commerce.Order.dto.OrderRequestDTO;
 import com.example.E_commerce.Order.dto.OrderResponseDTO;
@@ -7,10 +9,12 @@ import com.example.E_commerce.Order.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/orders")
@@ -54,4 +58,12 @@ public class OrderController {
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
     }
+
+
+    //Rest Template
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<?> getCustomerForOrder(@PathVariable UUID id, @RequestHeader("Authorization") String token) {
+        return orderService.getCustomerInfo(id, token.replace("Bearer ", ""));
+    }
+
 }

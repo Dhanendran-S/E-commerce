@@ -37,7 +37,14 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(auth -> auth
-                        //.requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Public APIs
+                        .requestMatchers(
+                                //  "/add-user",
+                                "/customers/create",
+                                "/products/all",
+                                "/home/**",
+                                "/kafka/**"
+                        ).permitAll()
 
                         // Customers
                         .requestMatchers("/customers/all", "/customers/delete/**").hasRole("ADMIN")
@@ -51,20 +58,11 @@ public class SecurityConfiguration {
 
                         // Orders
                         .requestMatchers("/orders/all", "/orders/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/orders/create", "/orders/my-order/**", "/orders/delete-my/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/orders/create", "/orders/my-order/**", "/orders/delete-my/**", "orders/customer/**").hasAnyRole("ADMIN", "USER")
 
                         // Products
-                        .requestMatchers("/products/add/**", "/products/update/**", "/products/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/products/product/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/products/**").hasAnyRole("ADMIN", "USER")
 
-                        // Public APIs
-                        .requestMatchers(
-                              //  "/add-user",
-                                "/customers/create", //username, password -->
-                                "/products/all",
-                                "/home/**",
-                                "/kafka/**"
-                        ).permitAll()
                         // Default rule
                         .anyRequest().authenticated()
                 )

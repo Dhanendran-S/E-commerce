@@ -1,5 +1,7 @@
 package com.example.E_commerce.Order.service;
 
+import com.example.E_commerce.Customer.dto.CustomerRequestDTO;
+import com.example.E_commerce.Customer.dto.CustomerResponseDTO;
 import com.example.E_commerce.Exception.CustomerNotFoundException;
 import com.example.E_commerce.Exception.OrderNotFoundException;
 import com.example.E_commerce.Exception.ProductNotFoundException;
@@ -14,8 +16,16 @@ import com.example.E_commerce.Persistance.repository.OrderProductRepository;
 import com.example.E_commerce.Persistance.repository.OrderRepository;
 import com.example.E_commerce.Persistance.repository.ProductRepository;
 import com.example.E_commerce.Persistance.utils.OrderMapper;
+import com.example.E_commerce.Product.dto.ProductResponseDTO;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,14 +43,33 @@ public class OrderService {
     private final OrderAssembler orderAssembler;
     private final OrderProductRepository  orderProductRepository;
     private final ProducerService producerService;
+    private final RestTemplate restTemplate;
 
-    public OrderService(OrderRepository orderRepository, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository,  ProducerService producerService) {
+    private String productServiceUrl = "http://localhost:9090/customers/my/";
+
+
+    public OrderService(OrderRepository orderRepository, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository,  ProducerService producerService,  RestTemplate restTemplate) {
         this.orderRepository = orderRepository;
         this.orderAssembler = orderAssembler;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.orderProductRepository = orderProductRepository;
         this.producerService = producerService;
+        this.restTemplate = restTemplate;
+    }
+
+    public ResponseEntity<?> getCustomerInfo(UUID customerId, String token) {
+        String url = productServiceUrl + customerId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token); //JWT token
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        ResponseEntity<CustomerResponseDTO> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                CustomerResponseDTO.class
+        );
+        return response;
     }
 
     //New order
@@ -55,8 +84,8 @@ public class OrderService {
         //To check that customer id is not present or not
         Customer customer = getCustomerOrThrow(dto.getCustomerId());
         List<Product> products = validateAndUpdateStock(dto.getProducts());
-        //Save the products with updated stock qty in the product table
-        products.forEach(productRepository::save);
+        products.forEach(productRepository::save); //Save the products with updated stock qty in the product table
+
         //Calculate the price for it
         BigDecimal totalPrice = calculateTotalPrice(dto.getProducts());
         Order order = OrderMapper.toEntity(dto, customer, totalPrice);
@@ -146,6 +175,35 @@ public class OrderService {
                 .toList();
     }
 
+    /*private List<Product> validateAndUpdateStock(List<ProductQuantityDTO> productQuantities) {
+        return productQuantities.stream()
+                .map(pq -> {
+                    String url = productServiceUrl + "/product/" + pq.getProductId(); //http://localhost:9090/products/product/8
+                    System.out.println(url);
+                    ProductResponseDTO productDto = restTemplate.getForObject(url, ProductResponseDTO.class); // Call ProductService to fetch product
+                    if (productDto == null) {
+                        throw new ProductNotFoundException(P_NOTFOUND);
+                    }
+                    if (productDto.getQuantity() < pq.getQuantity()) {
+                        throw new ProductNotFoundException(P_QUANTITY + productDto.getName());
+                    }
+                    productDto.setQuantity(productDto.getQuantity() - pq.getQuantity()); // Reduce stock (simulate update)
+                    String putUrl = productServiceUrl + "/update/" + pq.getProductId();
+                    restTemplate.put(putUrl, productDto); // Update ProductService
+
+                    // Convert ProductResponseDTO -> Product (your entity)
+                    Product product= new Product();
+                    product.setPId(productDto.getId());
+                    product.setName(productDto.getName());
+                    product.setPrice(productDto.getPrice());
+                    product.setStockQty(productDto.getQuantity());
+
+                    return product;
+                })
+                .toList();
+    }*/
+
+
     private BigDecimal calculateTotalPrice(List<ProductQuantityDTO> dto) {
         return dto.stream() //Mainly works with collections
                 .map(pq -> { // It takes each product one by one
@@ -155,6 +213,21 @@ public class OrderService {
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add); //Like total += price inside for loop
     }
+
+
+
+    /*private BigDecimal calculateTotalPrice(List<ProductQuantityDTO> dto) {
+        return dto.stream()
+                .map(pq -> {
+                    String url = productServiceUrl + "/product/" + pq.getProductId();
+                    ProductResponseDTO productDto = restTemplate.getForObject(url, ProductResponseDTO.class);
+                    if (productDto == null) {
+                        throw new ProductNotFoundException(P_NOTFOUND);
+                    }
+                    return productDto.getPrice().multiply(BigDecimal.valueOf(pq.getQuantity()));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }*/
 
 
 }
