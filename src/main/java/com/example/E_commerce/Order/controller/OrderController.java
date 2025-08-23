@@ -66,4 +66,5 @@ public class OrderController {
         return orderService.getCustomerInfo(id, token.replace("Bearer ", ""));
     }
 
+    //Feign Client
 }

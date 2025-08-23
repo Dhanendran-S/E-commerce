@@ -23,6 +23,7 @@ repositories {
 	mavenCentral()
 }
 
+
 dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -33,6 +34,9 @@ dependencies {
 
     // Kafka dependency
     implementation 'org.springframework.kafka:spring-kafka'
+
+    //Feign Client
+    //implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     // ✅ Use only the latest jjwt dependencies (0.12.6)
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'

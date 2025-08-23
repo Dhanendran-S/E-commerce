@@ -44,6 +44,7 @@ public class OrderService {
     private final OrderProductRepository  orderProductRepository;
     private final ProducerService producerService;
     private final RestTemplate restTemplate;
+    //private final CustomerFeignClient customerFeignClient;
 
     private String productServiceUrl = "http://localhost:9090/customers/my/";
 
@@ -56,7 +57,12 @@ public class OrderService {
         this.orderProductRepository = orderProductRepository;
         this.producerService = producerService;
         this.restTemplate = restTemplate;
+        //this.customerFeignClient = customerFeignClient;
     }
+
+    /*public CustomerResponseDTO fetchCustomer(UUID customerId, String token) {
+        return customerFeignClient.getCustomerById(customerId, "Bearer " + token);
+    }*/
 
     public ResponseEntity<?> getCustomerInfo(UUID customerId, String token) {
         String url = productServiceUrl + customerId;

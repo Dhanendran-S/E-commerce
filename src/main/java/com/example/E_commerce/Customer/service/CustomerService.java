@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -81,5 +82,14 @@ public class CustomerService {
         }
         customerRepository.deleteById(id);
     }
+
+    /*public CustomerResponseDTO getCustomersById(UUID id, String token) {
+        Optional<Customer> customerOptional = customerRepository.findById(id);
+        if(customerOptional.isPresent()) {
+            Customer customer = customerOptional.get();
+            return customerAssembler.toResponseDTO(customer);
+        }
+        return null;
+    }*/
 
 }

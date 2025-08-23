@@ -80,4 +80,5 @@ public class CustomerController {
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
     }
+
 }
