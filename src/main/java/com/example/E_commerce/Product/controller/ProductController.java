@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
+
 import static com.example.E_commerce.Constants.CommonConstants.P_DELETED;
 
 @RestController
@@ -47,30 +49,38 @@ public class ProductController {
     }
 
     @GetMapping("/product/{id}")
-    public ProductResponseDTO getProductById(@PathVariable Long id){
-        return productService.getProductById(id);
+    public ProductResponseDTO getProductById(@PathVariable Long id,
+                                             @RequestParam(name = "lang", required = false, defaultValue = "en") String lang){
+        Locale locale = Locale.forLanguageTag(lang);
+        return productService.getProductById(id,locale);
     }
 
     @PostMapping("/add")
-    public EntityModel<ProductResponseDTO> addProduct(@Valid @RequestBody ProductRequestDTO product) {
-        ProductResponseDTO savedProduct = productService.addProduct(product);
+    public EntityModel<ProductResponseDTO> addProduct(@Valid @RequestBody ProductRequestDTO product,
+                                                      @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        ProductResponseDTO savedProduct = productService.addProduct(product, locale);
         return productAssembler.toModel(savedProduct);
     }
 
     @PutMapping("/update/{id}")
-    public EntityModel<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO dto) {
-        ProductResponseDTO updatedProduct = productService.updateProduct(id, dto);
+    public EntityModel<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO dto,
+                                                         @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        ProductResponseDTO updatedProduct = productService.updateProduct(id, dto, locale);
         return productAssembler.toModel(updatedProduct);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id,
+                                                @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        productService.deleteProduct(id, locale);
         return ResponseEntity.ok(P_DELETED);
     }
 
-    @GetMapping("/csrf-token")
+    /*@GetMapping("/csrf-token")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
-    }
+    }*/
 }

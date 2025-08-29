@@ -40,8 +40,7 @@ public class SecurityConfiguration {
                         // Public APIs
                         .requestMatchers(
                                 //  "/add-user",
-                                "/customers/create",
-                                "/products/all",
+                                "/products/**",
                                 "/home/**",
                                 "/kafka/**"
                         ).permitAll()
@@ -61,7 +60,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/orders/create", "/orders/my-order/**", "/orders/delete-my/**", "orders/customer/**").hasAnyRole("ADMIN", "USER")
 
                         // Products
-                        .requestMatchers("/products/**").hasAnyRole("ADMIN", "USER")
+                        //.requestMatchers("/products/**").hasAnyRole("ADMIN", "USER")
 
                         // Default rule
                         .anyRequest().authenticated()

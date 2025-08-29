@@ -18,14 +18,14 @@ public class OrderStatusScheduler {
         this.orderRepository = orderRepository;
     }
 
-    @Scheduled(cron = "0 15 11 * * ?") //Every
+    @Scheduled(cron = "0 18 10 * * ?") //Every
     public void placedToShipping() {
         List<Order> placedOrders = orderRepository.findByStatus(OrderStatus.PLACED);
         placedOrders.forEach(order -> order.setStatus(OrderStatus.SHIPPING));
         orderRepository.saveAll(placedOrders);
     }
 
-    @Scheduled(cron = "0 15 11 * * ?")
+    @Scheduled(cron = "0 18 10 * * ?")
     public void shippingToDelivered() {
         List<Order> shippingOrders = orderRepository.findByStatus(OrderStatus.SHIPPING);
         shippingOrders.forEach(order -> order.setStatus(OrderStatus.DELIVERED));
