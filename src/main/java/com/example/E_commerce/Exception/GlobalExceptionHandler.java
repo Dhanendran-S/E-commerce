@@ -19,13 +19,21 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<String> handleUserNotFoundException(CustomerNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    public ResponseEntity<Map<String, Object>> handleUserNotFoundException(CustomerNotFoundException e,
+                                                                           WebRequest request, Locale locale) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", e.getMessage());
+        body.put("path", ((ServletWebRequest) request).getRequest().getRequestURI());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     @ExceptionHandler(AddressNotFoundException.class)
-    public ResponseEntity<String> handleAddressNotFoundException(AddressNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    public ResponseEntity<Map<String, Object>> handleAddressNotFoundException(AddressNotFoundException e,
+                                                                 WebRequest request, Locale locale) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", e.getMessage());
+        body.put("path", ((ServletWebRequest) request).getRequest().getRequestURI());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
@@ -33,15 +41,19 @@ public class GlobalExceptionHandler {
             ProductNotFoundException ex, WebRequest request, Locale locale) {
 
         Map<String, Object> body = new HashMap<>();
-        body.put("message", ex.getMessage()); // use already translated message
+        body.put("message", ex.getMessage());
         body.put("path", ((ServletWebRequest) request).getRequest().getRequestURI());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<String> handleOrderNotFoundException(OrderNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    public ResponseEntity<Map<String, Object>> handleOrderNotFoundException(
+            OrderNotFoundException e, WebRequest request, Locale locale) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", e.getMessage());
+        body.put("path", ((ServletWebRequest) request).getRequest().getRequestURI());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     @ExceptionHandler(ValidationException.class)

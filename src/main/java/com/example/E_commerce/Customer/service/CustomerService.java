@@ -9,6 +9,7 @@ import com.example.E_commerce.Persistance.utils.CustomerMapper;
 import com.example.E_commerce.Persistance.model.Customer;
 import com.example.E_commerce.Persistance.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,11 +29,13 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerAssembler customerAssembler;
     private final CustomerMapper customerMapper;
+    private final MessageSource messageSource;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerAssembler customerAssembler,  CustomerMapper customerMapper) {
+    public CustomerService(CustomerRepository customerRepository, CustomerAssembler customerAssembler,  CustomerMapper customerMapper,  MessageSource messageSource) {
         this.customerRepository = customerRepository;
         this.customerAssembler = customerAssembler;
         this.customerMapper = customerMapper;
+        this.messageSource = messageSource;
     }
 
     public Page<CustomerResponseDTO> getAllCustomers(int page, int size, String sortBy, String sortOrder) {
@@ -41,9 +45,9 @@ public class CustomerService {
                 .map(CustomerAssembler::toResponseDTO);
     }
 
-    public CustomerResponseDTO getCustomerById(UUID id) {
+    public CustomerResponseDTO getCustomerById(UUID id, Locale locale) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
+                .orElseThrow(() -> new CustomerNotFoundException(messageSource.getMessage("customer_not_found", null, locale)));
         return customerAssembler.toResponseDTO(customer);
     }
 
@@ -59,7 +63,7 @@ public class CustomerService {
         return customerAssembler.toResponseDTO(saved);
     }
 
-    public CustomerResponseDTO updateCustomer(UUID id, CustomerRequestDTO dto)
+    public CustomerResponseDTO updateCustomer(UUID id, CustomerRequestDTO dto, Locale locale)
     {
             Optional<Customer> customerOptional = customerRepository.findById(id);
             if(customerOptional.isPresent()) {
@@ -72,13 +76,13 @@ public class CustomerService {
                 return customerAssembler.toResponseDTO(customerRepository.save(customer));
             }
             else {
-                throw new CustomerNotFoundException(C_NOTFOUND);
+                throw new CustomerNotFoundException(messageSource.getMessage("customer_not_found", null, locale));
             }
     }
 
-    public void deleteCustomer(UUID id) {
+    public void deleteCustomer(UUID id, Locale locale) {
         if(!customerRepository.existsById(id)) {
-            throw new CustomerNotFoundException(C_NOTFOUND);
+            throw new CustomerNotFoundException(messageSource.getMessage("customer_not_found", null, locale));
         }
         customerRepository.deleteById(id);
     }

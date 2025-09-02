@@ -9,6 +9,8 @@ import com.example.E_commerce.Persistance.utils.CustomerMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 
@@ -27,7 +30,8 @@ public class CustomerAddressController {
     private final CustomerAddressService customerAddressService;
     private final CustomerAddressAssembler customerAddressAssembler;
 
-    public CustomerAddressController(CustomerAddressService customerAddressService, CustomerAddressAssembler customerAddressAssembler) {
+
+    public CustomerAddressController(CustomerAddressService customerAddressService, CustomerAddressAssembler customerAddressAssembler,  MessageSource messageSource) {
         this.customerAddressService = customerAddressService;
         this.customerAddressAssembler = customerAddressAssembler;
     }
@@ -43,32 +47,38 @@ public class CustomerAddressController {
 
 
     @GetMapping("/my-address/{id}")
-    public ResponseEntity<CustomerAddressResponseDTO> getCustomerAddresses(@PathVariable UUID id) {
-        CustomerAddressResponseDTO dto = customerAddressService.getCustomerAddressById(id);
+    public ResponseEntity<CustomerAddressResponseDTO> getCustomerAddresses(@PathVariable UUID id,
+                                                                           @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        CustomerAddressResponseDTO dto = customerAddressService.getCustomerAddressById(id, locale);
         return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/add-address")
-    public ResponseEntity<EntityModel<CustomerAddressResponseDTO>> addAddress(@Valid @RequestBody CustomerAddressRequestDTO dto) {
-        CustomerAddressResponseDTO savedDto = customerAddressService.addAddress(dto);
+    public ResponseEntity<EntityModel<CustomerAddressResponseDTO>> addAddress(@Valid @RequestBody CustomerAddressRequestDTO dto,
+                                                                              @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        CustomerAddressResponseDTO savedDto = customerAddressService.addAddress(dto, locale);
         return ResponseEntity.ok(customerAddressAssembler.toModel(savedDto));
     }
 
     @PutMapping("/update-address/{id}")
     public ResponseEntity<EntityModel<CustomerAddressResponseDTO>> updateAddress(
             @PathVariable UUID id,
-            @Valid @RequestBody CustomerAddressRequestDTO dto
+            @Valid @RequestBody CustomerAddressRequestDTO dto,
+            @RequestParam(name = "lang", required = false, defaultValue = "en") String lang
     ) {
-        CustomerAddressResponseDTO savedDto = customerAddressService.updateAddress(id, dto);
+        Locale locale = Locale.forLanguageTag(lang);
+        CustomerAddressResponseDTO savedDto = customerAddressService.updateAddress(id, dto, locale);
         return ResponseEntity.ok(customerAddressAssembler.toModel(savedDto));
     }
 
-    @GetMapping("/csrf-token")
+    /*@GetMapping("/csrf-token")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
     }
 
-    /*@DeleteMapping("/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteAddress(@PathVariable Long id) {
         customerAddressService.deleteAddressById(id);
         return ResponseEntity.ok("Customer address deleted successfully");

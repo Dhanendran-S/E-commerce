@@ -5,11 +5,9 @@ import com.example.E_commerce.CustomerCombinedAddress.service.CustomerCombinedSe
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -23,13 +21,15 @@ public class CustomerCombinedController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerCombinedResponseDTO> getCustomerWithAddress(@PathVariable UUID id) {
-        CustomerCombinedResponseDTO response = service.getCustomerWithAddress(id);
+    public ResponseEntity<CustomerCombinedResponseDTO> getCustomerWithAddress(@PathVariable UUID id,
+                                                                              @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        CustomerCombinedResponseDTO response = service.getCustomerWithAddress(id, locale);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/csrf-token")
+    /*@GetMapping("/csrf-token")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
-    }
+    }*/
 }

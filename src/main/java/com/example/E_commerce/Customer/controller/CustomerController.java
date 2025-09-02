@@ -16,6 +16,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import static com.example.E_commerce.Constants.CommonConstants.C_DELETED;
@@ -50,8 +51,10 @@ public class CustomerController {
     }
 
     @GetMapping("/my/{id}")
-    public CustomerResponseDTO getCustomerById(@PathVariable UUID id) {
-        return customerService.getCustomerById(id);
+    public CustomerResponseDTO getCustomerById(@PathVariable UUID id,
+                                               @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        return customerService.getCustomerById(id, locale);
     }
 
     @PostMapping("/create")
@@ -61,14 +64,18 @@ public class CustomerController {
     }
 
     @PutMapping("/update/{id}")
-    public EntityModel<CustomerResponseDTO> updateCustomer(@PathVariable UUID id, @Valid @RequestBody CustomerRequestDTO dto) {
-        CustomerResponseDTO updatedCustomer = customerService.updateCustomer(id, dto);
+    public EntityModel<CustomerResponseDTO> updateCustomer(@PathVariable UUID id, @Valid @RequestBody CustomerRequestDTO dto,
+                                                           @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        CustomerResponseDTO updatedCustomer = customerService.updateCustomer(id, dto, locale);
         return customerAssembler.toModel(updatedCustomer);
     }
 
     @DeleteMapping("/delete/{id}")
-    public EntityModel<String> deleteCustomer(@PathVariable UUID id) {
-        customerService.deleteCustomer(id);
+    public EntityModel<String> deleteCustomer(@PathVariable UUID id,
+                                              @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale = Locale.forLanguageTag(lang);
+        customerService.deleteCustomer(id, locale);
         return EntityModel.of(C_DELETED,
                 linkTo(methodOn(CustomerController.class)
                         .getAllCustomers(0, 10, "cId", "asc"))
@@ -76,9 +83,9 @@ public class CustomerController {
                         .withType("GET"));
     }
 
-    @GetMapping("/csrf-token")
+    /*@GetMapping("/csrf-token")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
-    }
+    }*/
 
 }

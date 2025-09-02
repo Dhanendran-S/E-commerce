@@ -21,7 +21,7 @@ public class OrderAssembler implements RepresentationModelAssembler<OrderRespons
     @Override
     public EntityModel<OrderResponseDTO> toModel(OrderResponseDTO order) {
         return EntityModel.of(order,
-                linkTo(methodOn(OrderController.class).getOrderById(order.getOrderId())).withSelfRel(),
+                linkTo(methodOn(OrderController.class).getOrderById(order.getOrderId(), null)).withSelfRel(),
                 linkTo(methodOn(OrderController.class).createOrder(null)).withRel("create-order").withType("POST")
         );
     }

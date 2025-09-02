@@ -10,8 +10,10 @@ import com.example.E_commerce.Persistance.model.CustomerAddress;
 import com.example.E_commerce.Persistance.repository.CustomerAddressRepository;
 import com.example.E_commerce.Persistance.repository.CustomerRepository;
 import com.example.E_commerce.Persistance.utils.CustomerAddressMapper;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,12 +27,14 @@ public class CustomerAddressService {
     private final CustomerAddressMapper mapper;
     private final CustomerRepository customerRepository;
     private final CustomerAddressAssembler assembler;
+    private final MessageSource messageSource;
 
-    public CustomerAddressService(CustomerAddressRepository repository, CustomerAddressMapper mapper, CustomerRepository customerRepository, CustomerAddressAssembler assembler) {
+    public CustomerAddressService(CustomerAddressRepository repository, CustomerAddressMapper mapper, CustomerRepository customerRepository, CustomerAddressAssembler assembler,  MessageSource messageSource) {
         this.repository = repository;
         this.mapper = mapper;
         this.customerRepository = customerRepository;
         this.assembler = assembler;
+        this.messageSource = messageSource;
     }
 
     /*public List<CustomerAddressResponseDTO> getAllCustomerAddresses() {
@@ -40,33 +44,33 @@ public class CustomerAddressService {
                 .toList();
     }*/
 
-    public CustomerAddressResponseDTO getCustomerAddressById(UUID id) {
+    public CustomerAddressResponseDTO getCustomerAddressById(UUID id, Locale locale) {
         CustomerAddress entity = repository.findById(id)
-                .orElseThrow(() -> new AddressNotFoundException(C_ADDRESS_NOT_FOUND));
+                .orElseThrow(() -> new AddressNotFoundException(messageSource.getMessage("customer_address_not_found", null, locale)));
         return assembler.toResponseDTO(entity);
     }
 
-    public CustomerAddressResponseDTO addAddress(CustomerAddressRequestDTO dto) {
+    public CustomerAddressResponseDTO addAddress(CustomerAddressRequestDTO dto, Locale locale) {
         if (dto.getCustomerId() == null) {
             throw new CustomerNotFoundException(INVALID_CID);
         }
         if (isBlank(dto.getStreetName()) || isBlank(dto.getDistrict())
                 || isBlank(dto.getPincode()) || isBlank(dto.getCountry())) {
-            throw new AddressNotFoundException(C_ADDRESS_EMPTY);
+            throw new AddressNotFoundException(messageSource.getMessage("customer_address_not_found", null, locale));
         }
         Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new CustomerNotFoundException(C_NOTFOUND));
+                .orElseThrow(() -> new CustomerNotFoundException(messageSource.getMessage("customer_not_found", null, locale)));
         CustomerAddress address = mapper.toEntity(dto);
         address.setCustomer(customer);
         CustomerAddress savedAddress = repository.save(address);
         return assembler.toResponseDTO(savedAddress);
     }
 
-    public CustomerAddressResponseDTO updateAddress(UUID customerId, CustomerAddressRequestDTO dto) {
+    public CustomerAddressResponseDTO updateAddress(UUID customerId, CustomerAddressRequestDTO dto, Locale locale) {
 
         Optional<CustomerAddress> optionalAddress = repository.findById(customerId);
         if (optionalAddress.isEmpty()) {
-            throw new AddressNotFoundException(C_ADDRESS_NOT_FOUND);
+            throw new AddressNotFoundException(messageSource.getMessage("customer_address_not_found", null, locale));
         }
         CustomerAddress address = optionalAddress.get();
         address.setStreetName(dto.getStreetName());

@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -35,8 +37,10 @@ public class OrderController {
     }
 
     @GetMapping("/my-order/{id}")
-    public OrderResponseDTO getOrderById(@PathVariable Long id) {
-        return orderService.getOrderById(id);
+    public OrderResponseDTO getOrderById(@PathVariable Long id,
+                                         @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale =Locale.forLanguageTag(lang);
+        return orderService.getOrderById(id, locale);
     }
 
     @GetMapping("/all")
@@ -49,15 +53,17 @@ public class OrderController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public EntityModel<OrderResponseDTO> deleteOrderById(@PathVariable Long id) {
-        OrderResponseDTO cancelledOrder = orderService.cancelOrder(id);
+    public EntityModel<OrderResponseDTO> deleteOrderById(@PathVariable Long id,
+                                                         @RequestParam(name = "lang", required = false, defaultValue = "en") String lang) {
+        Locale locale =Locale.forLanguageTag(lang);
+        OrderResponseDTO cancelledOrder = orderService.cancelOrder(id, locale);
         return EntityModel.of(cancelledOrder);
     }
 
-    @GetMapping("/csrf-token")
+    /*@GetMapping("/csrf-token")
     public CsrfToken getCsrfToken(HttpServletRequest request) {
         return (CsrfToken) request.getAttribute("_csrf");
-    }
+    }*/
 
 
     //Rest Template

@@ -19,6 +19,7 @@ import com.example.E_commerce.Persistance.utils.OrderMapper;
 import com.example.E_commerce.Product.dto.ProductResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import static com.example.E_commerce.Constants.CommonConstants.*;
@@ -44,12 +46,13 @@ public class OrderService {
     private final OrderProductRepository  orderProductRepository;
     private final ProducerService producerService;
     private final RestTemplate restTemplate;
+    private final MessageSource messageSource;
     //private final CustomerFeignClient customerFeignClient;
 
     private String productServiceUrl = "http://localhost:9090/customers/my/";
 
 
-    public OrderService(OrderRepository orderRepository, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository,  ProducerService producerService,  RestTemplate restTemplate) {
+    public OrderService(OrderRepository orderRepository, OrderAssembler orderAssembler,  CustomerRepository customerRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository,  ProducerService producerService,  RestTemplate restTemplate,  MessageSource messageSource) {
         this.orderRepository = orderRepository;
         this.orderAssembler = orderAssembler;
         this.customerRepository = customerRepository;
@@ -57,6 +60,7 @@ public class OrderService {
         this.orderProductRepository = orderProductRepository;
         this.producerService = producerService;
         this.restTemplate = restTemplate;
+        this.messageSource = messageSource;
         //this.customerFeignClient = customerFeignClient;
     }
 
@@ -130,9 +134,9 @@ public class OrderService {
     }
 
     //Orders by Id
-    public OrderResponseDTO getOrderById(Long id) {
+    public OrderResponseDTO getOrderById(Long id, Locale locale) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException(O_NOTFOUND));
+                .orElseThrow(() -> new OrderNotFoundException(messageSource.getMessage("order_not_found", null, locale)));
 
         List<ProductQuantityDTO> orderedProducts = productRepository.findById(id)
                 .stream()
@@ -152,9 +156,9 @@ public class OrderService {
     }
 
     //Cancel the order
-    public OrderResponseDTO cancelOrder(Long orderId) {
+    public OrderResponseDTO cancelOrder(Long orderId, Locale locale) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(O_NOTFOUND));
+                .orElseThrow(() -> new OrderNotFoundException(messageSource.getMessage("order_not_found", null, locale)));
 
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
